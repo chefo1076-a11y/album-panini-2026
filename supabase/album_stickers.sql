@@ -34,3 +34,18 @@ for update
 to anon
 using (true)
 with check (true);
+
+alter table album_stickers replica identity full;
+
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_publication_tables
+    where pubname = 'supabase_realtime'
+      and schemaname = 'public'
+      and tablename = 'album_stickers'
+  ) then
+    alter publication supabase_realtime add table album_stickers;
+  end if;
+end $$;

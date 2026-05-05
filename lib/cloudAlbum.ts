@@ -8,7 +8,7 @@ import {
 import type { AlbumData, StickerData, StickerId, UserName } from "./album";
 import { isSupabaseConfigured, supabase } from "./supabaseClient";
 
-type AlbumStickerRow = {
+export type AlbumStickerRow = {
   id: string;
   code: string;
   category: string;
@@ -111,6 +111,42 @@ export function summarizeAlbum(album: AlbumData): MigrationSummary {
     migrated: stickers.length,
     pegados: stickers.filter((sticker) => sticker.pegado).length,
     repetidos: stickers.reduce((total, sticker) => total + sticker.repetidos, 0)
+  };
+}
+
+export function applyCloudRowToAlbum(
+  album: AlbumData,
+  row: AlbumStickerRow
+): AlbumData {
+  if (!album.stickers[row.id as StickerId]) {
+    return album;
+  }
+
+  return {
+    ...album,
+    stickers: {
+      ...album.stickers,
+      [row.id]: rowToSticker(row, album.editor)
+    }
+  };
+}
+
+export function removeCloudRowFromAlbum(
+  album: AlbumData,
+  stickerId: StickerId
+): AlbumData {
+  if (!album.stickers[stickerId]) {
+    return album;
+  }
+
+  const cleanAlbum = createInitialData(album.editor);
+
+  return {
+    ...album,
+    stickers: {
+      ...album.stickers,
+      [stickerId]: cleanAlbum.stickers[stickerId]
+    }
   };
 }
 

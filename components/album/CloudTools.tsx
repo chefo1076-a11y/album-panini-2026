@@ -4,6 +4,7 @@ import type { MigrationSummary } from "../../lib/cloudAlbum";
 type CloudToolsProps = {
   cloudEnabled: boolean;
   status: string | null;
+  syncStatus: string;
   isBusy: boolean;
   onMigrateLocal: () => void;
   onExportBackup: () => void;
@@ -13,6 +14,7 @@ type CloudToolsProps = {
 export function CloudTools({
   cloudEnabled,
   status,
+  syncStatus,
   isBusy,
   onMigrateLocal,
   onExportBackup,
@@ -30,12 +32,21 @@ export function CloudTools({
   return (
     <section className="mt-4 overflow-hidden rounded border border-yellow-300/40 bg-white/85 shadow-[0_12px_28px_rgba(12,35,29,.10)]">
       <div className="border-b border-yellow-900/10 bg-[#fffdf7] px-3 py-3 sm:px-4">
-        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-950/45">
-          Herramientas
-        </p>
-        <h2 className="mt-1 text-lg font-black text-emerald-950">
-          Nube y respaldos
-        </h2>
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-950/45">
+              Herramientas
+            </p>
+            <h2 className="mt-1 text-lg font-black text-emerald-950">
+              Nube y respaldos
+            </h2>
+          </div>
+
+          <span className="rounded-full border border-emerald-950/10 bg-emerald-50 px-2.5 py-1 text-xs font-black text-emerald-950">
+            {syncStatus}
+          </span>
+        </div>
+
         <p className="mt-1 text-sm font-bold text-emerald-950/60">
           {cloudEnabled
             ? "Supabase configurado. Los cambios se guardan en la nube."

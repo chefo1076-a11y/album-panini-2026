@@ -27,11 +27,15 @@ import {
 } from "../lib/album";
 import type { AlbumData, Filters, StickerId, UserName } from "../lib/album";
 import {
+  applyCloudRowToAlbum,
   hasCloudAlbum,
   loadCloudAlbum,
+  removeCloudRowFromAlbum,
   upsertCloudAlbum,
   upsertCloudSticker
 } from "../lib/cloudAlbum";
+import type { AlbumStickerRow } from "../lib/cloudAlbum";
+import { supabase } from "../lib/supabaseClient";
 
 function saveAlbum(album: AlbumData) {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(album));
@@ -53,6 +57,7 @@ export default function Home() {
   const [resetNotice, setResetNotice] = useState<string | null>(null);
   const [cloudStatus, setCloudStatus] = useState<string | null>(null);
   const [isCloudBusy, setIsCloudBusy] = useState(false);
+  const [syncStatus, setSyncStatus] = useState("Sincronizado");
   const [filters, setFilters] = useState<Filters>({
     status: "Todos",
     query: "",
@@ -127,6 +132,129 @@ export default function Home() {
       saveAlbum(album);
     }
   }, [album, isReady]);
+
+  useEffect(() => {
+    if (!isReady || !hasCloudAlbum() || !supabase) {
+      return;
+    }
+
+    const client = supabase;
+    let fallbackInterval: number | null = null;
+    let syncDoneTimeout: number | null = null;
+    let isSubscribed = false;
+
+    async function refetchCloudAlbum() {
+      setSyncStatus("Actualizando...");
+
+      try {
+        const cloudResult = await loadCloudAlbum(album.editor);
+
+        if (cloudResult.source === "supabase") {
+          setAlbum((currentAlbum) => persist({
+            ...cloudResult.album,
+            editor: currentAlbum.editor
+          }));
+          setSyncStatus("Sincronizado");
+        }
+      } catch {
+        setSyncStatus("Sincronizacion pendiente");
+      }
+    }
+
+    function startFallbackPolling() {
+      if (fallbackInterval) {
+        return;
+      }
+
+      setCloudStatus(
+        "Realtime no esta disponible. Actualizando desde Supabase cada 15 segundos."
+      );
+      fallbackInterval = window.setInterval(() => {
+        void refetchCloudAlbum();
+      }, 15000);
+    }
+
+    function stopFallbackPolling() {
+      if (!fallbackInterval) {
+        return;
+      }
+
+      window.clearInterval(fallbackInterval);
+      fallbackInterval = null;
+    }
+
+    const channel = client
+      .channel("album-stickers-realtime")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "album_stickers"
+        },
+        (payload) => {
+          setSyncStatus("Actualizando...");
+
+          setAlbum((currentAlbum) => {
+            const nextAlbum =
+              payload.eventType === "DELETE"
+                ? removeCloudRowFromAlbum(
+                    currentAlbum,
+                    (payload.old as Partial<AlbumStickerRow>).id as StickerId
+                  )
+                : applyCloudRowToAlbum(
+                    currentAlbum,
+                    payload.new as AlbumStickerRow
+                  );
+
+            return persist(nextAlbum);
+          });
+
+          if (syncDoneTimeout) {
+            window.clearTimeout(syncDoneTimeout);
+          }
+
+          syncDoneTimeout = window.setTimeout(() => {
+            setSyncStatus("Sincronizado");
+          }, 400);
+        }
+      )
+      .subscribe((status) => {
+        if (status === "SUBSCRIBED") {
+          isSubscribed = true;
+          stopFallbackPolling();
+          setCloudStatus("Realtime activo. Cambios sincronizados al instante.");
+          setSyncStatus("Sincronizado");
+          return;
+        }
+
+        if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+          isSubscribed = false;
+          startFallbackPolling();
+        }
+
+        if (status === "CLOSED" && !isSubscribed) {
+          startFallbackPolling();
+        }
+      });
+
+    const fallbackGuard = window.setTimeout(() => {
+      if (!isSubscribed) {
+        startFallbackPolling();
+      }
+    }, 5000);
+
+    return () => {
+      window.clearTimeout(fallbackGuard);
+
+      if (syncDoneTimeout) {
+        window.clearTimeout(syncDoneTimeout);
+      }
+
+      stopFallbackPolling();
+      void client.removeChannel(channel);
+    };
+  }, [album.editor, isReady]);
 
   const stats = useMemo(() => getAlbumStats(album.stickers), [album.stickers]);
   const missingStickers = useMemo(
@@ -349,6 +477,7 @@ export default function Home() {
         <CloudTools
           cloudEnabled={hasCloudAlbum()}
           status={cloudStatus}
+          syncStatus={syncStatus}
           isBusy={isCloudBusy}
           onMigrateLocal={handleMigrateLocalToCloud}
           onExportBackup={handleExportBackup}
