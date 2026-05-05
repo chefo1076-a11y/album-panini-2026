@@ -8,6 +8,10 @@ import { GroupsOverview } from "../components/album/GroupsOverview";
 import { MetricsGrid } from "../components/album/MetricsGrid";
 import { StickerGrid } from "../components/album/StickerGrid";
 import {
+  CloudTools,
+  formatMigrationSummary
+} from "../components/album/CloudTools";
+import {
   STORAGE_KEY,
   changeAlbumEditor,
   createEmptyUserRepeatedMap,
@@ -22,15 +26,33 @@ import {
   updateAlbumSticker
 } from "../lib/album";
 import type { AlbumData, Filters, StickerId, UserName } from "../lib/album";
+import {
+  hasCloudAlbum,
+  loadCloudAlbum,
+  upsertCloudAlbum,
+  upsertCloudSticker
+} from "../lib/cloudAlbum";
 
 function saveAlbum(album: AlbumData) {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(album));
+}
+
+function readLocalAlbum() {
+  const savedAlbum = window.localStorage.getItem(STORAGE_KEY);
+
+  if (!savedAlbum) {
+    return { album: createInitialData(), resetReason: null };
+  }
+
+  return normalizeData(JSON.parse(savedAlbum));
 }
 
 export default function Home() {
   const [album, setAlbum] = useState<AlbumData>(() => createInitialData());
   const [isReady, setIsReady] = useState(false);
   const [resetNotice, setResetNotice] = useState<string | null>(null);
+  const [cloudStatus, setCloudStatus] = useState<string | null>(null);
+  const [isCloudBusy, setIsCloudBusy] = useState(false);
   const [filters, setFilters] = useState<Filters>({
     status: "Todos",
     query: "",
@@ -39,22 +61,65 @@ export default function Home() {
   });
 
   useEffect(() => {
-    try {
-      const savedAlbum = window.localStorage.getItem(STORAGE_KEY);
+    let isMounted = true;
 
-      if (savedAlbum) {
-        const result = normalizeData(JSON.parse(savedAlbum));
-        setAlbum(result.album);
-        setResetNotice(result.resetReason ?? null);
+    async function loadAlbum() {
+      let localAlbum = createInitialData();
+      let localNotice: string | null = null;
+
+      try {
+        const localResult = readLocalAlbum();
+        localAlbum = localResult.album;
+        localNotice = localResult.resetReason ?? null;
+      } catch {
+        localNotice =
+          "No pudimos leer el progreso local. Usaremos el checklist oficial limpio como respaldo.";
       }
-    } catch {
-      setAlbum(createInitialData());
-      setResetNotice(
-        "No pudimos leer el progreso guardado. Reiniciamos el album con el checklist oficial."
-      );
-    } finally {
-      setIsReady(true);
+
+      try {
+        if (hasCloudAlbum()) {
+          const cloudResult = await loadCloudAlbum(localAlbum.editor);
+
+          if (!isMounted) {
+            return;
+          }
+
+          if (cloudResult.source === "supabase") {
+            setAlbum(cloudResult.album);
+            setResetNotice(localNotice);
+            setCloudStatus("Progreso cargado desde Supabase.");
+          } else {
+            setAlbum(localAlbum);
+            setResetNotice(cloudResult.message ?? localNotice);
+            setCloudStatus(cloudResult.message ?? null);
+          }
+        } else if (isMounted) {
+          setAlbum(localAlbum);
+          setResetNotice(localNotice);
+          setCloudStatus(
+            "Supabase no esta configurado. Usando localStorage como respaldo temporal."
+          );
+        }
+      } catch {
+        if (isMounted) {
+          setAlbum(localAlbum);
+          setResetNotice(
+            "No pudimos conectar con Supabase. Usando localStorage como respaldo temporal."
+          );
+          setCloudStatus("Los cambios quedaran guardados localmente por ahora.");
+        }
+      } finally {
+        if (isMounted) {
+          setIsReady(true);
+        }
+      }
     }
+
+    loadAlbum();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -82,6 +147,21 @@ export default function Home() {
     return nextAlbum;
   }
 
+  async function syncSticker(nextAlbum: AlbumData, stickerId: StickerId) {
+    if (!hasCloudAlbum()) {
+      return;
+    }
+
+    try {
+      await upsertCloudSticker(nextAlbum, stickerId);
+      setCloudStatus("Cambio guardado en Supabase.");
+    } catch {
+      setCloudStatus(
+        "No pudimos guardar en Supabase. El cambio quedo en localStorage como respaldo."
+      );
+    }
+  }
+
   function handleEditorChange(editor: UserName) {
     setAlbum((currentAlbum) => persist(changeAlbumEditor(currentAlbum, editor)));
   }
@@ -91,8 +171,8 @@ export default function Home() {
   }
 
   function handleTogglePegado(stickerId: StickerId) {
-    setAlbum((currentAlbum) =>
-      persist(
+    setAlbum((currentAlbum) => {
+      const nextAlbum = persist(
         updateAlbumSticker(currentAlbum, stickerId, (currentSticker) => {
           const nextPegado = !currentSticker.pegado;
 
@@ -105,13 +185,17 @@ export default function Home() {
               : createEmptyUserRepeatedMap()
           };
         })
-      )
-    );
+      );
+
+      void syncSticker(nextAlbum, stickerId);
+
+      return nextAlbum;
+    });
   }
 
   function handleIncrementRepeated(stickerId: StickerId) {
-    setAlbum((currentAlbum) =>
-      persist(updateAlbumSticker(currentAlbum, stickerId, (currentSticker) => {
+    setAlbum((currentAlbum) => {
+      const nextAlbum = persist(updateAlbumSticker(currentAlbum, stickerId, (currentSticker) => {
         const repetidosPorUsuario = {
           ...currentSticker.repetidosPorUsuario,
           [currentAlbum.editor]: currentSticker.repetidosPorUsuario[currentAlbum.editor] + 1
@@ -122,13 +206,17 @@ export default function Home() {
           repetidos: getTotalRepeated(repetidosPorUsuario),
           repetidosPorUsuario
         };
-      }))
-    );
+      }));
+
+      void syncSticker(nextAlbum, stickerId);
+
+      return nextAlbum;
+    });
   }
 
   function handleDecrementRepeated(stickerId: StickerId) {
-    setAlbum((currentAlbum) =>
-      persist(updateAlbumSticker(currentAlbum, stickerId, (currentSticker) => {
+    setAlbum((currentAlbum) => {
+      const nextAlbum = persist(updateAlbumSticker(currentAlbum, stickerId, (currentSticker) => {
         const repetidosPorUsuario = {
           ...currentSticker.repetidosPorUsuario,
           [currentAlbum.editor]: Math.max(
@@ -142,8 +230,78 @@ export default function Home() {
           repetidos: getTotalRepeated(repetidosPorUsuario),
           repetidosPorUsuario
         };
-      }))
+      }));
+
+      void syncSticker(nextAlbum, stickerId);
+
+      return nextAlbum;
+    });
+  }
+
+  async function handleMigrateLocalToCloud() {
+    if (!hasCloudAlbum()) {
+      setCloudStatus("Configura las variables de Supabase antes de migrar.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      "Esto subira el progreso guardado en este navegador a Supabase y podra sobrescribir los cromos existentes en la nube. Continuamos?"
     );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setIsCloudBusy(true);
+
+    try {
+      const localResult = readLocalAlbum();
+      const summary = await upsertCloudAlbum(localResult.album);
+      setAlbum(persist(localResult.album));
+      setCloudStatus(`Migracion completada: ${formatMigrationSummary(summary)}`);
+    } catch {
+      setCloudStatus("No pudimos migrar el progreso local a Supabase.");
+    } finally {
+      setIsCloudBusy(false);
+    }
+  }
+
+  function handleExportBackup() {
+    const backup = JSON.stringify(album, null, 2);
+    const blob = new Blob([backup], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = `album-panini-2026-${new Date().toISOString().slice(0, 10)}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+    setCloudStatus("Respaldo JSON exportado.");
+  }
+
+  async function handleImportBackup(file: File) {
+    setIsCloudBusy(true);
+
+    try {
+      const text = await file.text();
+      const result = normalizeData(JSON.parse(text));
+      const importedAlbum = persist(result.album);
+
+      setAlbum(importedAlbum);
+
+      if (hasCloudAlbum()) {
+        const summary = await upsertCloudAlbum(importedAlbum);
+        setCloudStatus(
+          `Respaldo importado y subido a Supabase: ${formatMigrationSummary(summary)}`
+        );
+      } else {
+        setCloudStatus("Respaldo importado en localStorage.");
+      }
+    } catch {
+      setCloudStatus("No pudimos importar el respaldo JSON.");
+    } finally {
+      setIsCloudBusy(false);
+    }
   }
 
   if (!isReady) {
@@ -186,6 +344,15 @@ export default function Home() {
           visibleCount={visibleStickers.length}
           onFiltersChange={setFilters}
           onResetAlbum={handleResetAlbum}
+        />
+
+        <CloudTools
+          cloudEnabled={hasCloudAlbum()}
+          status={cloudStatus}
+          isBusy={isCloudBusy}
+          onMigrateLocal={handleMigrateLocalToCloud}
+          onExportBackup={handleExportBackup}
+          onImportBackup={handleImportBackup}
         />
 
         <ExchangePanel
