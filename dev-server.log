@@ -48948,3 +48948,465 @@ https://nextjs.org/docs/messages/module-not-found
  GET / 200 in 61ms (next.js: 8ms, application-code: 53ms)
  GET / 200 in 149ms (next.js: 9ms, application-code: 140ms)
  GET / 200 in 103ms (next.js: 5ms, application-code: 97ms)
+ GET / 200 in 1382ms (next.js: 28ms, application-code: 1354ms)
+ GET / 200 in 179ms (next.js: 41ms, application-code: 138ms)
+ GET / 200 in 184ms (next.js: 15ms, application-code: 169ms)
+ GET / 200 in 365ms (next.js: 110ms, application-code: 255ms)
+⨯ ./app/layout.tsx:3:1
+Module not found: Can't resolve '../components/pwa/ServiceWorkerRegistration'
+  [90m1 |[0m [36mimport[0m [36mtype[0m { [33mMetadata[0m, [33mViewport[0m } [36mfrom[0m [32m"next"[0m;
+  [90m2 |[0m [36mimport[0m [36mtype[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m3 |[0m [36mimport[0m { [33mServiceWorkerRegistration[0m } [36mfrom[0m [32m"../components/pwa/ServiceWorkerRegistration"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m4 |[0m [36mimport[0m [32m"./globals.css"[0m;
+  [90m5 |[0m
+  [90m6 |[0m [36mexport[0m [36mconst[0m metadata: [33mMetadata[0m = {
+
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./app/layout.tsx:3:1
+Module not found: Can't resolve '../components/pwa/ServiceWorkerRegistration'
+  [90m1 |[0m [36mimport[0m [36mtype[0m { [33mMetadata[0m, [33mViewport[0m } [36mfrom[0m [32m"next"[0m;
+  [90m2 |[0m [36mimport[0m [36mtype[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m3 |[0m [36mimport[0m { [33mServiceWorkerRegistration[0m } [36mfrom[0m [32m"../components/pwa/ServiceWorkerRegistration"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m4 |[0m [36mimport[0m [32m"./globals.css"[0m;
+  [90m5 |[0m
+  [90m6 |[0m [36mexport[0m [36mconst[0m metadata: [33mMetadata[0m = {
+
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./app/layout.tsx:3:1
+Module not found: Can't resolve '../components/pwa/ServiceWorkerRegistration'
+  [90m1 |[0m [36mimport[0m [36mtype[0m { [33mMetadata[0m, [33mViewport[0m } [36mfrom[0m [32m"next"[0m;
+  [90m2 |[0m [36mimport[0m [36mtype[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m3 |[0m [36mimport[0m { [33mServiceWorkerRegistration[0m } [36mfrom[0m [32m"../components/pwa/ServiceWorkerRegistration"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m4 |[0m [36mimport[0m [32m"./globals.css"[0m;
+  [90m5 |[0m
+  [90m6 |[0m [36mexport[0m [36mconst[0m metadata: [33mMetadata[0m = {
+
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./app/layout.tsx:3:1
+Module not found: Can't resolve '../components/pwa/ServiceWorkerRegistration'
+  [90m1 |[0m [36mimport[0m [36mtype[0m { [33mMetadata[0m, [33mViewport[0m } [36mfrom[0m [32m"next"[0m;
+  [90m2 |[0m [36mimport[0m [36mtype[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m3 |[0m [36mimport[0m { [33mServiceWorkerRegistration[0m } [36mfrom[0m [32m"../components/pwa/ServiceWorkerRegistration"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m4 |[0m [36mimport[0m [32m"./globals.css"[0m;
+  [90m5 |[0m
+  [90m6 |[0m [36mexport[0m [36mconst[0m metadata: [33mMetadata[0m = {
+
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./app/layout.tsx:3:1
+Module not found: Can't resolve '../components/pwa/ServiceWorkerRegistration'
+  [90m1 |[0m [36mimport[0m [36mtype[0m { [33mMetadata[0m, [33mViewport[0m } [36mfrom[0m [32m"next"[0m;
+  [90m2 |[0m [36mimport[0m [36mtype[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m3 |[0m [36mimport[0m { [33mServiceWorkerRegistration[0m } [36mfrom[0m [32m"../components/pwa/ServiceWorkerRegistration"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m4 |[0m [36mimport[0m [32m"./globals.css"[0m;
+  [90m5 |[0m
+  [90m6 |[0m [36mexport[0m [36mconst[0m metadata: [33mMetadata[0m = {
+
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./app/layout.tsx:3:1
+Module not found: Can't resolve '../components/pwa/ServiceWorkerRegistration'
+  [90m1 |[0m [36mimport[0m [36mtype[0m { [33mMetadata[0m, [33mViewport[0m } [36mfrom[0m [32m"next"[0m;
+  [90m2 |[0m [36mimport[0m [36mtype[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m3 |[0m [36mimport[0m { [33mServiceWorkerRegistration[0m } [36mfrom[0m [32m"../components/pwa/ServiceWorkerRegistration"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m4 |[0m [36mimport[0m [32m"./globals.css"[0m;
+  [90m5 |[0m
+  [90m6 |[0m [36mexport[0m [36mconst[0m metadata: [33mMetadata[0m = {
+
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./app/layout.tsx:3:1
+Module not found: Can't resolve '../components/pwa/ServiceWorkerRegistration'
+  [90m1 |[0m [36mimport[0m [36mtype[0m { [33mMetadata[0m, [33mViewport[0m } [36mfrom[0m [32m"next"[0m;
+  [90m2 |[0m [36mimport[0m [36mtype[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m3 |[0m [36mimport[0m { [33mServiceWorkerRegistration[0m } [36mfrom[0m [32m"../components/pwa/ServiceWorkerRegistration"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m4 |[0m [36mimport[0m [32m"./globals.css"[0m;
+  [90m5 |[0m
+  [90m6 |[0m [36mexport[0m [36mconst[0m metadata: [33mMetadata[0m = {
+
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./app/layout.tsx:3:1
+Module not found: Can't resolve '../components/pwa/ServiceWorkerRegistration'
+  [90m1 |[0m [36mimport[0m [36mtype[0m { [33mMetadata[0m, [33mViewport[0m } [36mfrom[0m [32m"next"[0m;
+  [90m2 |[0m [36mimport[0m [36mtype[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m3 |[0m [36mimport[0m { [33mServiceWorkerRegistration[0m } [36mfrom[0m [32m"../components/pwa/ServiceWorkerRegistration"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m4 |[0m [36mimport[0m [32m"./globals.css"[0m;
+  [90m5 |[0m
+  [90m6 |[0m [36mexport[0m [36mconst[0m metadata: [33mMetadata[0m = {
+
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./app/layout.tsx:3:1
+Module not found: Can't resolve '../components/pwa/ServiceWorkerRegistration'
+  [90m1 |[0m [36mimport[0m [36mtype[0m { [33mMetadata[0m, [33mViewport[0m } [36mfrom[0m [32m"next"[0m;
+  [90m2 |[0m [36mimport[0m [36mtype[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m3 |[0m [36mimport[0m { [33mServiceWorkerRegistration[0m } [36mfrom[0m [32m"../components/pwa/ServiceWorkerRegistration"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m4 |[0m [36mimport[0m [32m"./globals.css"[0m;
+  [90m5 |[0m
+  [90m6 |[0m [36mexport[0m [36mconst[0m metadata: [33mMetadata[0m = {
+
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./app/layout.tsx:3:1
+Module not found: Can't resolve '../components/pwa/ServiceWorkerRegistration'
+  [90m1 |[0m [36mimport[0m [36mtype[0m { [33mMetadata[0m, [33mViewport[0m } [36mfrom[0m [32m"next"[0m;
+  [90m2 |[0m [36mimport[0m [36mtype[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m3 |[0m [36mimport[0m { [33mServiceWorkerRegistration[0m } [36mfrom[0m [32m"../components/pwa/ServiceWorkerRegistration"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m4 |[0m [36mimport[0m [32m"./globals.css"[0m;
+  [90m5 |[0m
+  [90m6 |[0m [36mexport[0m [36mconst[0m metadata: [33mMetadata[0m = {
+
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./app/layout.tsx:3:1
+Module not found: Can't resolve '../components/pwa/ServiceWorkerRegistration'
+  [90m1 |[0m [36mimport[0m [36mtype[0m { [33mMetadata[0m, [33mViewport[0m } [36mfrom[0m [32m"next"[0m;
+  [90m2 |[0m [36mimport[0m [36mtype[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m3 |[0m [36mimport[0m { [33mServiceWorkerRegistration[0m } [36mfrom[0m [32m"../components/pwa/ServiceWorkerRegistration"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m4 |[0m [36mimport[0m [32m"./globals.css"[0m;
+  [90m5 |[0m
+  [90m6 |[0m [36mexport[0m [36mconst[0m metadata: [33mMetadata[0m = {
+
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./app/layout.tsx:3:1
+Module not found: Can't resolve '../components/pwa/ServiceWorkerRegistration'
+  [90m1 |[0m [36mimport[0m [36mtype[0m { [33mMetadata[0m, [33mViewport[0m } [36mfrom[0m [32m"next"[0m;
+  [90m2 |[0m [36mimport[0m [36mtype[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m3 |[0m [36mimport[0m { [33mServiceWorkerRegistration[0m } [36mfrom[0m [32m"../components/pwa/ServiceWorkerRegistration"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m4 |[0m [36mimport[0m [32m"./globals.css"[0m;
+  [90m5 |[0m
+  [90m6 |[0m [36mexport[0m [36mconst[0m metadata: [33mMetadata[0m = {
+
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./app/layout.tsx:3:1
+Module not found: Can't resolve '../components/pwa/ServiceWorkerRegistration'
+  [90m1 |[0m [36mimport[0m [36mtype[0m { [33mMetadata[0m, [33mViewport[0m } [36mfrom[0m [32m"next"[0m;
+  [90m2 |[0m [36mimport[0m [36mtype[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m3 |[0m [36mimport[0m { [33mServiceWorkerRegistration[0m } [36mfrom[0m [32m"../components/pwa/ServiceWorkerRegistration"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m4 |[0m [36mimport[0m [32m"./globals.css"[0m;
+  [90m5 |[0m
+  [90m6 |[0m [36mexport[0m [36mconst[0m metadata: [33mMetadata[0m = {
+
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[browser] ./app/layout.tsx:3:1
+Module not found: Can't resolve '../components/pwa/ServiceWorkerRegistration'
+  1 | import type { Metadata, Viewport } from "next";
+  2 | import type { ReactNode } from "react";
+> 3 | import { ServiceWorkerRegistration } from "../components/pwa/ServiceWorkerRegistration";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  4 | import "./globals.css";
+  5 |
+  6 | export const metadata: Metadata = {
+
+https://nextjs.org/docs/messages/module-not-found 
+    at handleErrors (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0fhqo1d._.js:13828:21)
+    at processMessage (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0fhqo1d._.js:13891:21)
+    at WebSocket.handleMessage (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0fhqo1d._.js:13335:52) (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0fhqo1d._.js:13828:21)
+[browser] ./app/layout.tsx:3:1
+Module not found: Can't resolve '../components/pwa/ServiceWorkerRegistration'
+  1 | import type { Metadata, Viewport } from "next";
+  2 | import type { ReactNode } from "react";
+> 3 | import { ServiceWorkerRegistration } from "../components/pwa/ServiceWorkerRegistration";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  4 | import "./globals.css";
+  5 |
+  6 | export const metadata: Metadata = {
+
+https://nextjs.org/docs/messages/module-not-found 
+    at handleErrors (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0fhqo1d._.js:13828:21)
+    at processMessage (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0fhqo1d._.js:13891:21)
+    at WebSocket.handleMessage (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0fhqo1d._.js:13335:52) (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0fhqo1d._.js:13828:21)
+[browser] ./app/layout.tsx:3:1
+Module not found: Can't resolve '../components/pwa/ServiceWorkerRegistration'
+  1 | import type { Metadata, Viewport } from "next";
+  2 | import type { ReactNode } from "react";
+> 3 | import { ServiceWorkerRegistration } from "../components/pwa/ServiceWorkerRegistration";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  4 | import "./globals.css";
+  5 |
+  6 | export const metadata: Metadata = {
+
+https://nextjs.org/docs/messages/module-not-found 
+    at handleErrors (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0fhqo1d._.js:13828:21)
+    at processMessage (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0fhqo1d._.js:13891:21)
+    at WebSocket.handleMessage (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0fhqo1d._.js:13335:52) (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0fhqo1d._.js:13828:21)
+ GET / 500 in 282ms (next.js: 179ms, application-code: 103ms)
+⨯ ./app/layout.tsx:3:1
+Module not found: Can't resolve '../components/pwa/ServiceWorkerRegistration'
+  [90m1 |[0m [36mimport[0m [36mtype[0m { [33mMetadata[0m, [33mViewport[0m } [36mfrom[0m [32m"next"[0m;
+  [90m2 |[0m [36mimport[0m [36mtype[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m3 |[0m [36mimport[0m { [33mServiceWorkerRegistration[0m } [36mfrom[0m [32m"../components/pwa/ServiceWorkerRegistration"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m4 |[0m [36mimport[0m [32m"./globals.css"[0m;
+  [90m5 |[0m
+  [90m6 |[0m [36mexport[0m [36mconst[0m metadata: [33mMetadata[0m = {
+
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+ GET / 500 in 52ms (next.js: 38ms, application-code: 14ms)
+[browser] Uncaught Error: ./app/layout.tsx:3:1
+Module not found: Can't resolve '../components/pwa/ServiceWorkerRegistration'
+  1 | import type { Metadata, Viewport } from "next";
+  2 | import type { ReactNode } from "react";
+> 3 | import { ServiceWorkerRegistration } from "../components/pwa/ServiceWorkerRegistration";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  4 | import "./globals.css";
+  5 |
+  6 | export const metadata: Metadata = {
+
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+    at <unknown> (Error: ./app/layout.tsx:3:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (Error: (./app/layout.tsx:3:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+[browser] ./app/layout.tsx:3:1
+Module not found: Can't resolve '../components/pwa/ServiceWorkerRegistration'
+  1 | import type { Metadata, Viewport } from "next";
+  2 | import type { ReactNode } from "react";
+> 3 | import { ServiceWorkerRegistration } from "../components/pwa/ServiceWorkerRegistration";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  4 | import "./globals.css";
+  5 |
+  6 | export const metadata: Metadata = {
+
+https://nextjs.org/docs/messages/module-not-found 
+    at handleErrors (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0pe1dg-._.js:2773:21)
+    at processMessage (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0pe1dg-._.js:2834:28)
+    at <unknown> (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0pe1dg-._.js:2679:13)
+    at WebSocket.handleMessage (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0pe1dg-._.js:2324:17) (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0pe1dg-._.js:2773:21)
+[browser] ./app/layout.tsx:3:1
+Module not found: Can't resolve '../components/pwa/ServiceWorkerRegistration'
+  1 | import type { Metadata, Viewport } from "next";
+  2 | import type { ReactNode } from "react";
+> 3 | import { ServiceWorkerRegistration } from "../components/pwa/ServiceWorkerRegistration";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  4 | import "./globals.css";
+  5 |
+  6 | export const metadata: Metadata = {
+
+https://nextjs.org/docs/messages/module-not-found 
+    at handleErrors (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0pe1dg-._.js:2773:21)
+    at processMessage (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0pe1dg-._.js:2834:28)
+    at <unknown> (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0pe1dg-._.js:2679:13)
+    at WebSocket.handleMessage (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0pe1dg-._.js:2324:17) (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0pe1dg-._.js:2773:21)
+[browser] ./app/layout.tsx:3:1
+Module not found: Can't resolve '../components/pwa/ServiceWorkerRegistration'
+  1 | import type { Metadata, Viewport } from "next";
+  2 | import type { ReactNode } from "react";
+> 3 | import { ServiceWorkerRegistration } from "../components/pwa/ServiceWorkerRegistration";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  4 | import "./globals.css";
+  5 |
+  6 | export const metadata: Metadata = {
+
+https://nextjs.org/docs/messages/module-not-found 
+    at handleErrors (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0pe1dg-._.js:2773:21)
+    at processMessage (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0pe1dg-._.js:2834:28)
+    at <unknown> (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0pe1dg-._.js:2679:13)
+    at WebSocket.handleMessage (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0pe1dg-._.js:2324:17) (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0pe1dg-._.js:2773:21)
+[browser] ./app/layout.tsx:3:1
+Module not found: Can't resolve '../components/pwa/ServiceWorkerRegistration'
+  1 | import type { Metadata, Viewport } from "next";
+  2 | import type { ReactNode } from "react";
+> 3 | import { ServiceWorkerRegistration } from "../components/pwa/ServiceWorkerRegistration";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  4 | import "./globals.css";
+  5 |
+  6 | export const metadata: Metadata = {
+
+https://nextjs.org/docs/messages/module-not-found 
+    at handleErrors (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0pe1dg-._.js:2773:21)
+    at processMessage (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0pe1dg-._.js:2834:28)
+    at <unknown> (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0pe1dg-._.js:2679:13)
+    at WebSocket.handleMessage (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0pe1dg-._.js:2324:17) (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0pe1dg-._.js:2773:21)
+⨯ ./app/layout.tsx:3:1
+Module not found: Can't resolve '../components/pwa/ServiceWorkerRegistration'
+  [90m1 |[0m [36mimport[0m [36mtype[0m { [33mMetadata[0m, [33mViewport[0m } [36mfrom[0m [32m"next"[0m;
+  [90m2 |[0m [36mimport[0m [36mtype[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m3 |[0m [36mimport[0m { [33mServiceWorkerRegistration[0m } [36mfrom[0m [32m"../components/pwa/ServiceWorkerRegistration"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m4 |[0m [36mimport[0m [32m"./globals.css"[0m;
+  [90m5 |[0m
+  [90m6 |[0m [36mexport[0m [36mconst[0m metadata: [33mMetadata[0m = {
+
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./app/layout.tsx:3:1
+Module not found: Can't resolve '../components/pwa/ServiceWorkerRegistration'
+  [90m1 |[0m [36mimport[0m [36mtype[0m { [33mMetadata[0m, [33mViewport[0m } [36mfrom[0m [32m"next"[0m;
+  [90m2 |[0m [36mimport[0m [36mtype[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m3 |[0m [36mimport[0m { [33mServiceWorkerRegistration[0m } [36mfrom[0m [32m"../components/pwa/ServiceWorkerRegistration"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m4 |[0m [36mimport[0m [32m"./globals.css"[0m;
+  [90m5 |[0m
+  [90m6 |[0m [36mexport[0m [36mconst[0m metadata: [33mMetadata[0m = {
+
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./app/layout.tsx:3:1
+Module not found: Can't resolve '../components/pwa/ServiceWorkerRegistration'
+  [90m1 |[0m [36mimport[0m [36mtype[0m { [33mMetadata[0m, [33mViewport[0m } [36mfrom[0m [32m"next"[0m;
+  [90m2 |[0m [36mimport[0m [36mtype[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m3 |[0m [36mimport[0m { [33mServiceWorkerRegistration[0m } [36mfrom[0m [32m"../components/pwa/ServiceWorkerRegistration"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m4 |[0m [36mimport[0m [32m"./globals.css"[0m;
+  [90m5 |[0m
+  [90m6 |[0m [36mexport[0m [36mconst[0m metadata: [33mMetadata[0m = {
+
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+⨯ ./app/layout.tsx:3:1
+Module not found: Can't resolve '../components/pwa/ServiceWorkerRegistration'
+  [90m1 |[0m [36mimport[0m [36mtype[0m { [33mMetadata[0m, [33mViewport[0m } [36mfrom[0m [32m"next"[0m;
+  [90m2 |[0m [36mimport[0m [36mtype[0m { [33mReactNode[0m } [36mfrom[0m [32m"react"[0m;
+[31m[1m>[0m [90m3 |[0m [36mimport[0m { [33mServiceWorkerRegistration[0m } [36mfrom[0m [32m"../components/pwa/ServiceWorkerRegistration"[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m4 |[0m [36mimport[0m [32m"./globals.css"[0m;
+  [90m5 |[0m
+  [90m6 |[0m [36mexport[0m [36mconst[0m metadata: [33mMetadata[0m = {
+
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+ GET / 500 in 36ms (next.js: 25ms, application-code: 11ms)
+✓ Compiled in 460ms
+[browser] Uncaught Error: ./app/layout.tsx:3:1
+Module not found: Can't resolve '../components/pwa/ServiceWorkerRegistration'
+  1 | import type { Metadata, Viewport } from "next";
+  2 | import type { ReactNode } from "react";
+> 3 | import { ServiceWorkerRegistration } from "../components/pwa/ServiceWorkerRegistration";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  4 | import "./globals.css";
+  5 |
+  6 | export const metadata: Metadata = {
+
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+    at <unknown> (Error: ./app/layout.tsx:3:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (Error: (./app/layout.tsx:3:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+[browser] ./app/layout.tsx:3:1
+Module not found: Can't resolve '../components/pwa/ServiceWorkerRegistration'
+  1 | import type { Metadata, Viewport } from "next";
+  2 | import type { ReactNode } from "react";
+> 3 | import { ServiceWorkerRegistration } from "../components/pwa/ServiceWorkerRegistration";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  4 | import "./globals.css";
+  5 |
+  6 | export const metadata: Metadata = {
+
+https://nextjs.org/docs/messages/module-not-found 
+    at handleErrors (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0pe1dg-._.js:2773:21)
+    at processMessage (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0pe1dg-._.js:2834:28)
+    at <unknown> (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0pe1dg-._.js:2679:13)
+    at WebSocket.handleMessage (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0pe1dg-._.js:2324:17) (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0pe1dg-._.js:2773:21)
+[browser] ./app/layout.tsx:3:1
+Module not found: Can't resolve '../components/pwa/ServiceWorkerRegistration'
+  1 | import type { Metadata, Viewport } from "next";
+  2 | import type { ReactNode } from "react";
+> 3 | import { ServiceWorkerRegistration } from "../components/pwa/ServiceWorkerRegistration";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  4 | import "./globals.css";
+  5 |
+  6 | export const metadata: Metadata = {
+
+https://nextjs.org/docs/messages/module-not-found 
+    at handleErrors (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0pe1dg-._.js:2773:21)
+    at processMessage (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0pe1dg-._.js:2834:28)
+    at <unknown> (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0pe1dg-._.js:2679:13)
+    at WebSocket.handleMessage (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0pe1dg-._.js:2324:17) (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_client_0pe1dg-._.js:2773:21)
+ GET / 200 in 1457ms (next.js: 855ms, application-code: 601ms)
+ GET / 200 in 895ms (next.js: 508ms, application-code: 386ms)
+⚠ Found a change in next.config.mjs. Restarting the server to apply the changes...
+▲ Next.js 16.2.4 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.100.96:3000
+- Environments: .env.local
+✓ Ready in 1217ms
+
+ GET / 200 in 1055ms (next.js: 401ms, application-code: 654ms)
+✓ Compiled in 1735ms
+✓ Compiled in 89ms
+ GET / 200 in 411ms (next.js: 124ms, application-code: 287ms)
+ GET / 200 in 149ms (next.js: 10ms, application-code: 139ms)
