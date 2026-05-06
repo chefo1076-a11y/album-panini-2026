@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { AlbumHeader } from "../components/album/AlbumHeader";
+import { AlbumAccessPanel } from "../components/album/AlbumAccessPanel";
 import { AlbumToolbar } from "../components/album/AlbumToolbar";
 import { ExchangePanel } from "../components/album/ExchangePanel";
 import { GroupsOverview } from "../components/album/GroupsOverview";
@@ -28,14 +29,23 @@ import {
 import type { AlbumData, Filters, StickerId, UserName } from "../lib/album";
 import {
   applyCloudRowToAlbum,
+  ACTIVE_ALBUM_STORAGE_KEY,
+  authorizeAlbum,
+  createCloudAlbum,
+  DEFAULT_ALBUM_SHARE_CODE,
+  ensureDefaultCloudAlbum,
+  getCloudAlbumByShareCode,
   hasCloudAlbum,
+  isAlbumAuthorized,
   loadCloudAlbum,
   removeCloudRowFromAlbum,
   upsertCloudAlbum,
   upsertCloudSticker
 } from "../lib/cloudAlbum";
-import type { AlbumStickerRow } from "../lib/cloudAlbum";
+import type { AlbumStickerRow, CloudAlbumRecord } from "../lib/cloudAlbum";
 import { supabase } from "../lib/supabaseClient";
+
+const RECENT_ALBUMS_STORAGE_KEY = "panini-recent-albums";
 
 function saveAlbum(album: AlbumData) {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(album));
@@ -51,6 +61,64 @@ function readLocalAlbum() {
   return normalizeData(JSON.parse(savedAlbum));
 }
 
+function getInitialShareCode() {
+  const url = new URL(window.location.href);
+  const urlShareCode = url.searchParams.get("album")?.trim();
+
+  if (urlShareCode) {
+    return urlShareCode;
+  }
+
+  return (
+    window.localStorage.getItem(ACTIVE_ALBUM_STORAGE_KEY) ??
+    DEFAULT_ALBUM_SHARE_CODE
+  );
+}
+
+function persistActiveAlbum(album: CloudAlbumRecord) {
+  window.localStorage.setItem(ACTIVE_ALBUM_STORAGE_KEY, album.share_code);
+  const url = new URL(window.location.href);
+  url.searchParams.set("album", album.share_code);
+  window.history.replaceState(null, "", url.toString());
+}
+
+function readRecentAlbums(): CloudAlbumRecord[] {
+  try {
+    const value = window.localStorage.getItem(RECENT_ALBUMS_STORAGE_KEY);
+
+    if (!value) {
+      return [];
+    }
+
+    const albums = JSON.parse(value) as CloudAlbumRecord[];
+
+    return Array.isArray(albums)
+      ? albums.filter(
+          (album) =>
+            typeof album.id === "string" &&
+            typeof album.name === "string" &&
+            typeof album.share_code === "string"
+        )
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+function rememberRecentAlbum(album: CloudAlbumRecord) {
+  const nextAlbums = [
+    album,
+    ...readRecentAlbums().filter((recentAlbum) => recentAlbum.id !== album.id)
+  ].slice(0, 6);
+
+  window.localStorage.setItem(
+    RECENT_ALBUMS_STORAGE_KEY,
+    JSON.stringify(nextAlbums)
+  );
+
+  return nextAlbums;
+}
+
 export default function Home() {
   const [album, setAlbum] = useState<AlbumData>(() => createInitialData());
   const [isReady, setIsReady] = useState(false);
@@ -58,6 +126,12 @@ export default function Home() {
   const [cloudStatus, setCloudStatus] = useState<string | null>(null);
   const [isCloudBusy, setIsCloudBusy] = useState(false);
   const [syncStatus, setSyncStatus] = useState("Sincronizado");
+  const [activeCloudAlbum, setActiveCloudAlbum] =
+    useState<CloudAlbumRecord | null>(null);
+  const [pendingPinAlbum, setPendingPinAlbum] =
+    useState<CloudAlbumRecord | null>(null);
+  const [albumAccessError, setAlbumAccessError] = useState<string | null>(null);
+  const [recentAlbums, setRecentAlbums] = useState<CloudAlbumRecord[]>([]);
   const [filters, setFilters] = useState<Filters>({
     status: "Todos",
     query: "",
@@ -76,6 +150,7 @@ export default function Home() {
         const localResult = readLocalAlbum();
         localAlbum = localResult.album;
         localNotice = localResult.resetReason ?? null;
+        setRecentAlbums(readRecentAlbums());
       } catch {
         localNotice =
           "No pudimos leer el progreso local. Usaremos el checklist oficial limpio como respaldo.";
@@ -83,16 +158,40 @@ export default function Home() {
 
       try {
         if (hasCloudAlbum()) {
-          const cloudResult = await loadCloudAlbum(localAlbum.editor);
+          const shareCode = getInitialShareCode();
+          const cloudAlbum =
+            shareCode === DEFAULT_ALBUM_SHARE_CODE
+              ? await ensureDefaultCloudAlbum()
+              : await getCloudAlbumByShareCode(shareCode);
+
+          if (!cloudAlbum) {
+            throw new Error("Album no encontrado.");
+          }
+
+          if (!isAlbumAuthorized(cloudAlbum)) {
+            setActiveCloudAlbum(null);
+            setPendingPinAlbum(cloudAlbum);
+            setAlbum(localAlbum);
+            setRecentAlbums(readRecentAlbums());
+            setCloudStatus("Este album requiere PIN.");
+            setResetNotice(localNotice);
+            return;
+          }
+
+          const cloudResult = await loadCloudAlbum(localAlbum.editor, cloudAlbum.id);
 
           if (!isMounted) {
             return;
           }
 
           if (cloudResult.source === "supabase") {
+            setActiveCloudAlbum(cloudAlbum);
+            setPendingPinAlbum(null);
+            persistActiveAlbum(cloudAlbum);
+            setRecentAlbums(rememberRecentAlbum(cloudAlbum));
             setAlbum(cloudResult.album);
             setResetNotice(localNotice);
-            setCloudStatus("Progreso cargado desde Supabase.");
+            setCloudStatus(`Progreso cargado desde Supabase: ${cloudAlbum.name}.`);
           } else {
             setAlbum(localAlbum);
             setResetNotice(cloudResult.message ?? localNotice);
@@ -134,11 +233,12 @@ export default function Home() {
   }, [album, isReady]);
 
   useEffect(() => {
-    if (!isReady || !hasCloudAlbum() || !supabase) {
+    if (!isReady || !hasCloudAlbum() || !supabase || !activeCloudAlbum) {
       return;
     }
 
     const client = supabase;
+    const albumId = activeCloudAlbum.id;
     let fallbackInterval: number | null = null;
     let syncDoneTimeout: number | null = null;
     let isSubscribed = false;
@@ -147,7 +247,7 @@ export default function Home() {
       setSyncStatus("Actualizando...");
 
       try {
-        const cloudResult = await loadCloudAlbum(album.editor);
+        const cloudResult = await loadCloudAlbum(album.editor, albumId);
 
         if (cloudResult.source === "supabase") {
           setAlbum((currentAlbum) => persist({
@@ -190,7 +290,8 @@ export default function Home() {
         {
           event: "*",
           schema: "public",
-          table: "album_stickers"
+          table: "album_stickers",
+          filter: `album_id=eq.${albumId}`
         },
         (payload) => {
           setSyncStatus("Actualizando...");
@@ -254,7 +355,7 @@ export default function Home() {
       stopFallbackPolling();
       void client.removeChannel(channel);
     };
-  }, [album.editor, isReady]);
+  }, [activeCloudAlbum, album.editor, isReady]);
 
   const stats = useMemo(() => getAlbumStats(album.stickers), [album.stickers]);
   const missingStickers = useMemo(
@@ -281,7 +382,11 @@ export default function Home() {
     }
 
     try {
-      await upsertCloudSticker(nextAlbum, stickerId);
+      if (!activeCloudAlbum) {
+        return;
+      }
+
+      await upsertCloudSticker(nextAlbum, stickerId, activeCloudAlbum.id);
       setCloudStatus("Cambio guardado en Supabase.");
     } catch {
       setCloudStatus(
@@ -384,7 +489,12 @@ export default function Home() {
 
     try {
       const localResult = readLocalAlbum();
-      const summary = await upsertCloudAlbum(localResult.album);
+      if (!activeCloudAlbum) {
+        setCloudStatus("Abre un album cloud antes de migrar.");
+        return;
+      }
+
+      const summary = await upsertCloudAlbum(localResult.album, activeCloudAlbum.id);
       setAlbum(persist(localResult.album));
       setCloudStatus(`Migracion completada: ${formatMigrationSummary(summary)}`);
     } catch {
@@ -418,7 +528,12 @@ export default function Home() {
       setAlbum(importedAlbum);
 
       if (hasCloudAlbum()) {
-        const summary = await upsertCloudAlbum(importedAlbum);
+        if (!activeCloudAlbum) {
+          setCloudStatus("Respaldo importado localmente. Abre un album cloud para subirlo.");
+          return;
+        }
+
+        const summary = await upsertCloudAlbum(importedAlbum, activeCloudAlbum.id);
         setCloudStatus(
           `Respaldo importado y subido a Supabase: ${formatMigrationSummary(summary)}`
         );
@@ -427,6 +542,96 @@ export default function Home() {
       }
     } catch {
       setCloudStatus("No pudimos importar el respaldo JSON.");
+    } finally {
+      setIsCloudBusy(false);
+    }
+  }
+
+  async function handleOpenAlbum(shareCode: string, pinCode?: string) {
+    if (!hasCloudAlbum()) {
+      setAlbumAccessError("Supabase no esta configurado.");
+      return;
+    }
+
+    setIsCloudBusy(true);
+    setAlbumAccessError(null);
+
+    try {
+      const normalizedShareCode = shareCode.trim();
+
+      if (!normalizedShareCode) {
+        setAlbumAccessError(
+          "Escribe el codigo del album. Por ejemplo: album-juanjo."
+        );
+        return;
+      }
+
+      const cloudAlbum = await getCloudAlbumByShareCode(normalizedShareCode);
+
+      if (!cloudAlbum) {
+        setAlbumAccessError(
+          "No encontramos ese album. Revisa el codigo compartido, por ejemplo album-juanjo."
+        );
+        return;
+      }
+
+      if (
+        cloudAlbum.pin_code &&
+        !isAlbumAuthorized(cloudAlbum) &&
+        cloudAlbum.pin_code !== pinCode?.trim()
+      ) {
+        setPendingPinAlbum(cloudAlbum);
+        setAlbumAccessError("PIN requerido o incorrecto.");
+        return;
+      }
+
+      authorizeAlbum(cloudAlbum.id);
+      persistActiveAlbum(cloudAlbum);
+      setRecentAlbums(rememberRecentAlbum(cloudAlbum));
+      setActiveCloudAlbum(cloudAlbum);
+      setPendingPinAlbum(null);
+
+      const cloudResult = await loadCloudAlbum(album.editor, cloudAlbum.id);
+
+      if (cloudResult.source === "supabase") {
+        setAlbum(persist({ ...cloudResult.album, editor: album.editor }));
+      }
+
+      setCloudStatus(`Album activo: ${cloudAlbum.name}.`);
+    } catch {
+      setAlbumAccessError("No pudimos abrir el album.");
+    } finally {
+      setIsCloudBusy(false);
+    }
+  }
+
+  async function handleCreateAlbum(name: string, pinCode?: string) {
+    if (!hasCloudAlbum()) {
+      setAlbumAccessError("Supabase no esta configurado.");
+      return;
+    }
+
+    if (!name.trim()) {
+      setAlbumAccessError("Escribe un nombre para el album.");
+      return;
+    }
+
+    setIsCloudBusy(true);
+    setAlbumAccessError(null);
+
+    try {
+      const cloudAlbum = await createCloudAlbum(name, pinCode);
+      authorizeAlbum(cloudAlbum.id);
+      persistActiveAlbum(cloudAlbum);
+      setRecentAlbums(rememberRecentAlbum(cloudAlbum));
+      setActiveCloudAlbum(cloudAlbum);
+      setPendingPinAlbum(null);
+      setAlbum(persist(createInitialData(album.editor)));
+      setCloudStatus(
+        `Album creado: ${cloudAlbum.name}. Codigo: ${cloudAlbum.share_code}. Comparte su link unico.`
+      );
+    } catch {
+      setAlbumAccessError("No pudimos crear el album.");
     } finally {
       setIsCloudBusy(false);
     }
@@ -472,6 +677,16 @@ export default function Home() {
           visibleCount={visibleStickers.length}
           onFiltersChange={setFilters}
           onResetAlbum={handleResetAlbum}
+        />
+
+        <AlbumAccessPanel
+          activeAlbum={activeCloudAlbum}
+          pendingAlbum={pendingPinAlbum}
+          recentAlbums={recentAlbums}
+          error={albumAccessError}
+          onOpenAlbum={handleOpenAlbum}
+          onCreateAlbum={handleCreateAlbum}
+          onOpenDefaultAlbum={() => handleOpenAlbum(DEFAULT_ALBUM_SHARE_CODE)}
         />
 
         <CloudTools

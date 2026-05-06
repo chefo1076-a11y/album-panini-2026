@@ -49410,3 +49410,70 @@ https://nextjs.org/docs/messages/module-not-found
 ✓ Compiled in 89ms
  GET / 200 in 411ms (next.js: 124ms, application-code: 287ms)
  GET / 200 in 149ms (next.js: 10ms, application-code: 139ms)
+✓ Compiled in 307ms
+ GET / 200 in 248ms (next.js: 155ms, application-code: 93ms)
+✓ Compiled in 325ms
+ GET / 200 in 120ms (next.js: 77ms, application-code: 43ms)
+✓ Compiled in 70ms
+ GET / 200 in 149ms (next.js: 83ms, application-code: 67ms)
+✓ Compiled in 70ms
+ GET / 200 in 113ms (next.js: 71ms, application-code: 42ms)
+✓ Compiled in 70ms
+ GET / 200 in 164ms (next.js: 112ms, application-code: 52ms)
+✓ Compiled in 203ms
+✓ Compiled in 344ms
+ GET / 200 in 245ms (next.js: 147ms, application-code: 97ms)
+ GET / 200 in 54ms (next.js: 6ms, application-code: 48ms)
+✓ Compiled in 67ms
+ GET / 200 in 131ms (next.js: 67ms, application-code: 64ms)
+ GET /?album=album-juanjo 200 in 303ms (next.js: 21ms, application-code: 282ms)
+ GET / 200 in 65ms (next.js: 4ms, application-code: 62ms)
+ GET /manifest.webmanifest 200 in 661ms (next.js: 634ms, application-code: 27ms)
+ GET /?album=album-juanjo 200 in 49ms (next.js: 5ms, application-code: 44ms)
+✓ Compiled in 338ms
+ GET / 200 in 465ms (next.js: 302ms, application-code: 163ms)
+ GET /?album=album-juanjo 200 in 76ms (next.js: 9ms, application-code: 67ms)
+[browser] Uncaught TypeError: Cannot read properties of undefined (reading 'length')
+    at AlbumAccessPanel (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/_0b-8nsp._.js?id=%255Bproject%255D%252Fcomponents%252Falbum%252FAlbumAccessPanel.tsx+%255Bapp-client%255D+%2528ecmascript%2529:165:42)
+    at Object.react_stack_bottom_frame (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:15037:24)
+    at renderWithHooks (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4620:24)
+    at updateFunctionComponent (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:6081:21)
+    at beginWork (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:6691:24)
+    at runWithFiberInDEV (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:965:74)
+    at performUnitOfWork (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9555:97)
+    at workLoopSync (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9449:40)
+    at renderRootSync (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9433:13)
+    at performWorkOnRoot (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9061:186)
+    at performSyncWorkOnRoot (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:10263:9)
+    at flushSyncWorkAcrossRoots_impl (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:10179:316)
+    at processRootScheduleInMicrotask (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:10200:106)
+    at <unknown> (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:10274:158)
+    at Home (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/_0b-8nsp._.js?id=%255Bproject%255D%252Fapp%252Fpage.tsx+%255Bapp-client%255D+%2528ecmascript%2529:563:223)
+    at ClientPageRoot (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_0tt2wve._.js:4461:50)
+[browser] Uncaught TypeError: Cannot read properties of undefined (reading 'length')
+    at AlbumAccessPanel (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/_0b-8nsp._.js?id=%255Bproject%255D%252Fcomponents%252Falbum%252FAlbumAccessPanel.tsx+%255Bapp-client%255D+%2528ecmascript%2529:165:42)
+    at Object.react_stack_bottom_frame (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:15037:24)
+    at renderWithHooks (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4620:24)
+    at updateFunctionComponent (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:6081:21)
+    at beginWork (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:6691:24)
+    at runWithFiberInDEV (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:965:74)
+    at performUnitOfWork (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9555:97)
+    at workLoopSync (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9449:40)
+    at renderRootSync (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9433:13)
+    at performWorkOnRoot (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9061:186)
+    at performSyncWorkOnRoot (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:10263:9)
+    at flushSyncWorkAcrossRoots_impl (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:10179:316)
+    at flushSyncWork$1 (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9230:86)
+    at Object.scheduleRefresh (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:299:13)
+    at <unknown> (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_compiled_0rpq4pf._.js:391:33)
+    at Set.forEach (<anonymous>)
+    at Object.performReactRefresh (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_compiled_0rpq4pf._.js:384:38)
+    at applyUpdate (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_compiled_0rpq4pf._.js:878:31)
+    at <unknown> (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_compiled_0rpq4pf._.js:886:13)
+    at Home (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/_0b-8nsp._.js:4959:223)
+    at ClientPageRoot (file://C:/Users/sandy/OneDrive/Documents/New project/.next/dev/static/chunks/node_modules_next_dist_0tt2wve._.js:4461:50)
+✓ Compiled in 72ms
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET / 200 in 414ms (next.js: 118ms, application-code: 296ms)
+✓ Compiled in 82ms
+ GET /?album=album-juanjo 200 in 214ms (next.js: 120ms, application-code: 94ms)

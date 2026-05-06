@@ -9,6 +9,7 @@ import type { AlbumData, StickerData, StickerId, UserName } from "./album";
 import { isSupabaseConfigured, supabase } from "./supabaseClient";
 
 export type AlbumStickerRow = {
+  album_id: string;
   id: string;
   code: string;
   category: string;
@@ -19,6 +20,14 @@ export type AlbumStickerRow = {
   repeats: number;
   updated_by: string | null;
   updated_at?: string | null;
+};
+
+export type CloudAlbumRecord = {
+  id: string;
+  name: string;
+  share_code: string;
+  pin_code: string | null;
+  created_at?: string;
 };
 
 export type CloudLoadResult = {
@@ -33,11 +42,19 @@ export type MigrationSummary = {
   repetidos: number;
 };
 
+export const DEFAULT_ALBUM_NAME = "Álbum Juanjo";
+export const DEFAULT_ALBUM_SHARE_CODE = "album-juanjo";
+export const ACTIVE_ALBUM_STORAGE_KEY = "panini-active-album-share-code";
+export const ALBUM_AUTH_STORAGE_PREFIX = "panini-album-authorized-";
+
 export function hasCloudAlbum() {
   return isSupabaseConfigured && Boolean(supabase);
 }
 
-export async function loadCloudAlbum(editor: UserName): Promise<CloudLoadResult> {
+export async function loadCloudAlbum(
+  editor: UserName,
+  albumId: string
+): Promise<CloudLoadResult> {
   if (!supabase) {
     return {
       album: createInitialData(editor),
@@ -47,7 +64,10 @@ export async function loadCloudAlbum(editor: UserName): Promise<CloudLoadResult>
     };
   }
 
-  const { data, error } = await supabase.from("album_stickers").select("*");
+  const { data, error } = await supabase
+    .from("album_stickers")
+    .select("*")
+    .eq("album_id", albumId);
 
   if (error) {
     return {
@@ -73,35 +93,111 @@ export async function loadCloudAlbum(editor: UserName): Promise<CloudLoadResult>
 
 export async function upsertCloudSticker(
   album: AlbumData,
-  stickerId: StickerId
+  stickerId: StickerId,
+  albumId: string
 ) {
   if (!supabase) {
     throw new Error("Supabase no esta configurado.");
   }
 
-  const row = albumStickerToRow(album, stickerId);
-  const { error } = await supabase.from("album_stickers").upsert(row);
+  const row = albumStickerToRow(album, stickerId, albumId);
+  const { error } = await supabase
+    .from("album_stickers")
+    .upsert(row, { onConflict: "album_id,id" });
 
   if (error) {
     throw error;
   }
 }
 
-export async function upsertCloudAlbum(album: AlbumData) {
+export async function upsertCloudAlbum(album: AlbumData, albumId: string) {
   if (!supabase) {
     throw new Error("Supabase no esta configurado.");
   }
 
   const rows = Object.keys(album.stickers).map((stickerId) =>
-    albumStickerToRow(album, stickerId as StickerId)
+    albumStickerToRow(album, stickerId as StickerId, albumId)
   );
-  const { error } = await supabase.from("album_stickers").upsert(rows);
+  const { error } = await supabase
+    .from("album_stickers")
+    .upsert(rows, { onConflict: "album_id,id" });
 
   if (error) {
     throw error;
   }
 
   return summarizeAlbum(album);
+}
+
+export async function ensureDefaultCloudAlbum() {
+  if (!supabase) {
+    throw new Error("Supabase no esta configurado.");
+  }
+
+  const existing = await getCloudAlbumByShareCode(DEFAULT_ALBUM_SHARE_CODE);
+
+  if (existing) {
+    return existing;
+  }
+
+  return createCloudAlbum(DEFAULT_ALBUM_NAME);
+}
+
+export async function getCloudAlbumByShareCode(shareCode: string) {
+  if (!supabase) {
+    throw new Error("Supabase no esta configurado.");
+  }
+
+  const { data, error } = await supabase
+    .from("albums")
+    .select("*")
+    .eq("share_code", shareCode)
+    .maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  return data as CloudAlbumRecord | null;
+}
+
+export async function createCloudAlbum(name: string, pinCode?: string) {
+  if (!supabase) {
+    throw new Error("Supabase no esta configurado.");
+  }
+
+  const shareCode = createShareCode(name);
+  const { data, error } = await supabase
+    .from("albums")
+    .insert({
+      name: name.trim(),
+      share_code: shareCode,
+      pin_code: pinCode?.trim() || null
+    })
+    .select("*")
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return data as CloudAlbumRecord;
+}
+
+export function isAlbumAuthorized(album: CloudAlbumRecord) {
+  if (!album.pin_code) {
+    return true;
+  }
+
+  return window.localStorage.getItem(getAlbumAuthStorageKey(album.id)) === "true";
+}
+
+export function authorizeAlbum(albumId: string) {
+  window.localStorage.setItem(getAlbumAuthStorageKey(albumId), "true");
+}
+
+export function getAlbumAuthStorageKey(albumId: string) {
+  return `${ALBUM_AUTH_STORAGE_PREFIX}${albumId}`;
 }
 
 export function summarizeAlbum(album: AlbumData): MigrationSummary {
@@ -164,7 +260,11 @@ function rowToSticker(row: AlbumStickerRow, fallbackEditor: UserName): StickerDa
   };
 }
 
-function albumStickerToRow(album: AlbumData, stickerId: StickerId): AlbumStickerRow {
+function albumStickerToRow(
+  album: AlbumData,
+  stickerId: StickerId,
+  albumId: string
+): AlbumStickerRow {
   const checklistSticker = CHECKLIST.find((sticker) => sticker.id === stickerId);
   const sticker = album.stickers[stickerId];
 
@@ -173,6 +273,7 @@ function albumStickerToRow(album: AlbumData, stickerId: StickerId): AlbumSticker
   }
 
   return {
+    album_id: albumId,
     id: checklistSticker.id,
     code: checklistSticker.codigo,
     category: checklistSticker.categoria,
@@ -184,6 +285,19 @@ function albumStickerToRow(album: AlbumData, stickerId: StickerId): AlbumSticker
     updated_by: album.editor,
     updated_at: new Date().toISOString()
   };
+}
+
+function createShareCode(name: string) {
+  const slug = name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 28);
+  const suffix = Math.random().toString(36).slice(2, 8);
+
+  return `${slug || "album"}-${suffix}`;
 }
 
 function isUserName(value: unknown): value is UserName {
