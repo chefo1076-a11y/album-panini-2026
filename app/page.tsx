@@ -39,6 +39,8 @@ import {
   isAlbumAuthorized,
   loadCloudAlbum,
   removeCloudRowFromAlbum,
+  revokeAlbumAuthorization,
+  updateCloudAlbumPin,
   upsertCloudAlbum,
   upsertCloudSticker
 } from "../lib/cloudAlbum";
@@ -93,12 +95,14 @@ function readRecentAlbums(): CloudAlbumRecord[] {
     const albums = JSON.parse(value) as CloudAlbumRecord[];
 
     return Array.isArray(albums)
-      ? albums.filter(
-          (album) =>
-            typeof album.id === "string" &&
-            typeof album.name === "string" &&
-            typeof album.share_code === "string"
-        )
+      ? albums
+          .filter(
+            (album) =>
+              typeof album.id === "string" &&
+              typeof album.name === "string" &&
+              typeof album.share_code === "string"
+          )
+          .map((album) => ({ ...album, pin_code: null }))
       : [];
   } catch {
     return [];
@@ -106,8 +110,12 @@ function readRecentAlbums(): CloudAlbumRecord[] {
 }
 
 function rememberRecentAlbum(album: CloudAlbumRecord) {
+  const safeAlbum = {
+    ...album,
+    pin_code: null
+  };
   const nextAlbums = [
-    album,
+    safeAlbum,
     ...readRecentAlbums().filter((recentAlbum) => recentAlbum.id !== album.id)
   ].slice(0, 6);
 
@@ -370,6 +378,10 @@ export default function Home() {
     () => getVisibleStickers(album.stickers, filters),
     [album.stickers, filters]
   );
+  const isCloudProtectedWithoutAccess = hasCloudAlbum() && !activeCloudAlbum;
+  const displayedStats = isCloudProtectedWithoutAccess
+    ? getAlbumStats(createInitialData(album.editor).stickers)
+    : stats;
 
   function persist(nextAlbum: AlbumData) {
     saveAlbum(nextAlbum);
@@ -580,7 +592,9 @@ export default function Home() {
         !isAlbumAuthorized(cloudAlbum) &&
         cloudAlbum.pin_code !== pinCode?.trim()
       ) {
+        setActiveCloudAlbum(null);
         setPendingPinAlbum(cloudAlbum);
+        setAlbum(persist(createInitialData(album.editor)));
         setAlbumAccessError("PIN requerido o incorrecto.");
         return;
       }
@@ -637,6 +651,45 @@ export default function Home() {
     }
   }
 
+  async function handleChangeCurrentAlbumPin(pinCode?: string) {
+    if (!activeCloudAlbum) {
+      setAlbumAccessError("Abre un album antes de cambiar el PIN.");
+      return;
+    }
+
+    setIsCloudBusy(true);
+    setAlbumAccessError(null);
+
+    try {
+      const updatedAlbum = await updateCloudAlbumPin(activeCloudAlbum.id, pinCode);
+      authorizeAlbum(updatedAlbum.id);
+      persistActiveAlbum(updatedAlbum);
+      setActiveCloudAlbum(updatedAlbum);
+      setRecentAlbums(rememberRecentAlbum(updatedAlbum));
+      setCloudStatus(
+        updatedAlbum.pin_code
+          ? "PIN actualizado para el album actual."
+          : "PIN eliminado del album actual."
+      );
+    } catch {
+      setAlbumAccessError("No pudimos actualizar el PIN del album.");
+    } finally {
+      setIsCloudBusy(false);
+    }
+  }
+
+  function handleCloseAlbumAccess() {
+    if (!activeCloudAlbum) {
+      return;
+    }
+
+    revokeAlbumAuthorization(activeCloudAlbum.id);
+    setPendingPinAlbum(activeCloudAlbum.pin_code ? activeCloudAlbum : null);
+    setActiveCloudAlbum(null);
+    setAlbum(persist(createInitialData(album.editor)));
+    setCloudStatus("Acceso local cerrado para este album.");
+  }
+
   if (!isReady) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#f4f7f2] px-4 text-center">
@@ -654,11 +707,11 @@ export default function Home() {
     <main className="min-h-screen bg-[#10231f] bg-[radial-gradient(circle_at_18%_0%,rgba(250,204,21,.18),transparent_28%),radial-gradient(circle_at_92%_12%,rgba(20,184,166,.22),transparent_24%),linear-gradient(180deg,#10231f_0%,#eef4e8_30%,#f7f4ea_100%)] text-ink">
       <AlbumHeader
         editor={album.editor}
-        stats={stats}
+        stats={displayedStats}
         onEditorChange={handleEditorChange}
       />
 
-      <MetricsGrid stats={stats} />
+      {!isCloudProtectedWithoutAccess ? <MetricsGrid stats={stats} /> : null}
 
       {resetNotice ? (
         <section className="mx-auto w-full max-w-7xl px-4 pt-3 sm:px-6 lg:px-8">
@@ -668,17 +721,11 @@ export default function Home() {
         </section>
       ) : null}
 
-      <GroupsOverview stickers={album.stickers} />
+      {!isCloudProtectedWithoutAccess ? (
+        <GroupsOverview stickers={album.stickers} />
+      ) : null}
 
       <section className="mx-auto w-full max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
-        <AlbumToolbar
-          editor={album.editor}
-          filters={filters}
-          visibleCount={visibleStickers.length}
-          onFiltersChange={setFilters}
-          onResetAlbum={handleResetAlbum}
-        />
-
         <AlbumAccessPanel
           activeAlbum={activeCloudAlbum}
           pendingAlbum={pendingPinAlbum}
@@ -687,31 +734,49 @@ export default function Home() {
           onOpenAlbum={handleOpenAlbum}
           onCreateAlbum={handleCreateAlbum}
           onOpenDefaultAlbum={() => handleOpenAlbum(DEFAULT_ALBUM_SHARE_CODE)}
+          onCloseAccess={handleCloseAlbumAccess}
+          onChangePin={handleChangeCurrentAlbumPin}
         />
 
-        <CloudTools
-          cloudEnabled={hasCloudAlbum()}
-          status={cloudStatus}
-          syncStatus={syncStatus}
-          isBusy={isCloudBusy}
-          onMigrateLocal={handleMigrateLocalToCloud}
-          onExportBackup={handleExportBackup}
-          onImportBackup={handleImportBackup}
-        />
+        {!isCloudProtectedWithoutAccess ? (
+          <>
+            <AlbumToolbar
+              editor={album.editor}
+              filters={filters}
+              visibleCount={visibleStickers.length}
+              onFiltersChange={setFilters}
+              onResetAlbum={handleResetAlbum}
+            />
 
-        <ExchangePanel
-          missingStickers={missingStickers}
-          repeatedStickers={repeatedStickers}
-        />
+            <CloudTools
+              cloudEnabled={hasCloudAlbum()}
+              status={cloudStatus}
+              syncStatus={syncStatus}
+              isBusy={isCloudBusy}
+              onMigrateLocal={handleMigrateLocalToCloud}
+              onExportBackup={handleExportBackup}
+              onImportBackup={handleImportBackup}
+            />
 
-        <StickerGrid
-          editor={album.editor}
-          stickers={album.stickers}
-          visibleStickers={visibleStickers}
-          onTogglePegado={handleTogglePegado}
-          onIncrementRepeated={handleIncrementRepeated}
-          onDecrementRepeated={handleDecrementRepeated}
-        />
+            <ExchangePanel
+              missingStickers={missingStickers}
+              repeatedStickers={repeatedStickers}
+            />
+
+            <StickerGrid
+              editor={album.editor}
+              stickers={album.stickers}
+              visibleStickers={visibleStickers}
+              onTogglePegado={handleTogglePegado}
+              onIncrementRepeated={handleIncrementRepeated}
+              onDecrementRepeated={handleDecrementRepeated}
+            />
+          </>
+        ) : (
+          <div className="mt-4 rounded border border-yellow-300/70 bg-yellow-50 px-3 py-3 text-sm font-bold text-yellow-900 shadow-sm">
+            Ingresa el PIN del album para ver y modificar sus cromos.
+          </div>
+        )}
       </section>
     </main>
   );

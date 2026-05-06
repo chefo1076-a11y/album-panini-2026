@@ -66,6 +66,14 @@ for insert
 to anon
 with check (true);
 
+drop policy if exists albums_update_anon on albums;
+create policy albums_update_anon
+on albums
+for update
+to anon
+using (true)
+with check (true);
+
 drop policy if exists album_stickers_select_anon on album_stickers;
 create policy album_stickers_select_anon
 on album_stickers
@@ -109,4 +117,3 @@ begin
     alter publication supabase_realtime add table album_stickers;
   end if;
 end $$;
-

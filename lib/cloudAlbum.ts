@@ -42,7 +42,7 @@ export type MigrationSummary = {
   repetidos: number;
 };
 
-export const DEFAULT_ALBUM_NAME = "Álbum Juanjo";
+export const DEFAULT_ALBUM_NAME = "Album Juanjo";
 export const DEFAULT_ALBUM_SHARE_CODE = "album-juanjo";
 export const ACTIVE_ALBUM_STORAGE_KEY = "panini-active-album-share-code";
 export const ALBUM_AUTH_STORAGE_PREFIX = "panini-album-authorized-";
@@ -184,6 +184,25 @@ export async function createCloudAlbum(name: string, pinCode?: string) {
   return data as CloudAlbumRecord;
 }
 
+export async function updateCloudAlbumPin(albumId: string, pinCode?: string) {
+  if (!supabase) {
+    throw new Error("Supabase no esta configurado.");
+  }
+
+  const { data, error } = await supabase
+    .from("albums")
+    .update({ pin_code: pinCode?.trim() || null })
+    .eq("id", albumId)
+    .select("*")
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return data as CloudAlbumRecord;
+}
+
 export function isAlbumAuthorized(album: CloudAlbumRecord) {
   if (!album.pin_code) {
     return true;
@@ -194,6 +213,10 @@ export function isAlbumAuthorized(album: CloudAlbumRecord) {
 
 export function authorizeAlbum(albumId: string) {
   window.localStorage.setItem(getAlbumAuthStorageKey(albumId), "true");
+}
+
+export function revokeAlbumAuthorization(albumId: string) {
+  window.localStorage.removeItem(getAlbumAuthStorageKey(albumId));
 }
 
 export function getAlbumAuthStorageKey(albumId: string) {

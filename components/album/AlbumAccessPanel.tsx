@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { CloudAlbumRecord } from "../../lib/cloudAlbum";
 
 type AlbumAccessPanelProps = {
@@ -11,6 +11,8 @@ type AlbumAccessPanelProps = {
   onOpenAlbum: (shareCode: string, pinCode?: string) => void;
   onCreateAlbum: (name: string, pinCode?: string) => void;
   onOpenDefaultAlbum: () => void;
+  onCloseAccess: () => void;
+  onChangePin: (pinCode?: string) => void;
 };
 
 export function AlbumAccessPanel({
@@ -20,12 +22,27 @@ export function AlbumAccessPanel({
   error,
   onOpenAlbum,
   onCreateAlbum,
-  onOpenDefaultAlbum
+  onOpenDefaultAlbum,
+  onCloseAccess,
+  onChangePin
 }: AlbumAccessPanelProps) {
   const [shareCode, setShareCode] = useState(activeAlbum?.share_code ?? "");
   const [pinCode, setPinCode] = useState("");
   const [name, setName] = useState("");
   const [newPinCode, setNewPinCode] = useState("");
+  const [currentAlbumPinCode, setCurrentAlbumPinCode] = useState("");
+
+  useEffect(() => {
+    if (pendingAlbum) {
+      setShareCode(pendingAlbum.share_code);
+      setPinCode("");
+      return;
+    }
+
+    if (activeAlbum) {
+      setShareCode(activeAlbum.share_code);
+    }
+  }, [activeAlbum, pendingAlbum]);
 
   const shareUrl =
     typeof window === "undefined" || !activeAlbum
@@ -111,7 +128,10 @@ export function AlbumAccessPanel({
                     key={album.id}
                     className="rounded-full border border-emerald-950/10 bg-white px-2.5 py-1 text-xs font-black text-emerald-950 transition hover:bg-yellow-50"
                     type="button"
-                    onClick={() => onOpenAlbum(album.share_code)}
+                    onClick={() => {
+                      setShareCode(album.share_code);
+                      onOpenAlbum(album.share_code);
+                    }}
                   >
                     {album.name} · {album.share_code}
                   </button>
@@ -156,6 +176,44 @@ export function AlbumAccessPanel({
           </button>
         </form>
       </div>
+
+      {activeAlbum ? (
+        <div className="grid gap-3 border-t border-yellow-900/10 p-3 sm:grid-cols-2 sm:p-4">
+          <form
+            className="grid gap-2"
+            onSubmit={(event) => {
+              event.preventDefault();
+              onChangePin(currentAlbumPinCode);
+              setCurrentAlbumPinCode("");
+            }}
+          >
+            <label className="text-xs font-black uppercase tracking-[0.14em] text-emerald-950/55">
+              Crear/cambiar PIN del album actual
+              <input
+                className="mt-1 h-10 w-full rounded border border-emerald-950/10 bg-white px-3 text-sm font-bold normal-case tracking-normal text-emerald-950 outline-none focus:ring-4 focus:ring-yellow-200/40"
+                type="password"
+                value={currentAlbumPinCode}
+                onChange={(event) => setCurrentAlbumPinCode(event.target.value)}
+                placeholder="Nuevo PIN, vacio para quitarlo"
+              />
+            </label>
+
+            <button className="h-10 rounded bg-emerald-950 px-3 text-sm font-black text-yellow-100 transition hover:bg-black">
+              Guardar PIN
+            </button>
+          </form>
+
+          <div className="flex flex-col justify-end">
+            <button
+              className="h-10 rounded border border-red-200 bg-red-50 px-3 text-sm font-black text-red-700 transition hover:bg-red-100"
+              type="button"
+              onClick={onCloseAccess}
+            >
+              Cerrar acceso del album
+            </button>
+          </div>
+        </div>
+      ) : null}
 
       {error ? (
         <p className="border-t border-yellow-900/10 px-3 py-2 text-sm font-bold text-red-700 sm:px-4">
