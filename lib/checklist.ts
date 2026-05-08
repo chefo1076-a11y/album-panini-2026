@@ -48,6 +48,22 @@ export type ChecklistSection = {
   stickers: ChecklistSticker[];
 };
 
+export type StickersCatalogRow = {
+  sticker_code: string;
+  sort_order: number;
+  category: ChecklistCategoria;
+  section: string;
+  country: string;
+  selection: string | null;
+  group_code: WorldCupGroupId | null;
+  sticker_number: number;
+  sticker_type: ChecklistTipo;
+  name: string;
+  description: string | null;
+  flag: string | null;
+  flag_url: string | null;
+};
+
 type TeamSection = {
   section: string;
   country: string;
@@ -225,6 +241,236 @@ export const CHECKLIST_SECTIONS: ChecklistSection[] = [
 export const CHECKLIST: ChecklistSticker[] = CHECKLIST_SECTIONS.flatMap(
   (section) => section.stickers
 );
+
+let runtimeChecklist = CHECKLIST;
+let runtimeChecklistSections = CHECKLIST_SECTIONS;
+
+export function getChecklist() {
+  return runtimeChecklist;
+}
+
+export function getChecklistSections() {
+  return runtimeChecklistSections;
+}
+
+export function setChecklistFromCatalogRows(rows: StickersCatalogRow[]) {
+  if (rows.length === 0) {
+    runtimeChecklist = CHECKLIST;
+    runtimeChecklistSections = CHECKLIST_SECTIONS;
+    return;
+  }
+
+  runtimeChecklist = rows
+    .slice()
+    .sort((a, b) => a.sort_order - b.sort_order)
+    .map(catalogRowToSticker);
+  runtimeChecklistSections = buildSections(runtimeChecklist);
+
+  const selectionsDetected = new Set(
+    runtimeChecklist
+      .filter((sticker) => sticker.categoria === "Equipo")
+      .map((sticker) => sticker.country)
+  ).size;
+  const groupsDetected = new Set(
+    runtimeChecklist
+      .map((sticker) => sticker.group)
+      .filter((group): group is WorldCupGroupId => Boolean(group))
+  ).size;
+
+  console.log("[album-debug] selections detected", selectionsDetected);
+  console.log("[album-debug] groups detected", groupsDetected);
+  console.log("[album-debug] catalog sample", runtimeChecklist[0]);
+}
+
+function catalogRowToSticker(row: StickersCatalogRow): ChecklistSticker {
+  const code = normalizeStickerCode(row.sticker_code);
+  const country = normalizeCountry(row.country || getCountryFromCode(code));
+  const number = row.sticker_number;
+  const category = normalizeCategory(row.category, country);
+  const type = getChecklistStickerType(category);
+  const inferredGroup = normalizeGroup(row.group_code) ?? getGroupForCountry(country);
+  const group = inferredGroup ?? undefined;
+  const flag = row.flag ?? getDefaultFlag(country);
+  const flagUrl = row.flag_url ?? getFlagUrl(country);
+  const section = row.selection ?? row.section ?? country;
+  const stickerType = normalizeStickerType(row.sticker_type, category, number);
+
+  return {
+    id: code,
+    codigo: code,
+    categoria: category,
+    seleccion: row.selection,
+    grupo: row.group_code,
+    country,
+    flag,
+    ...(flagUrl ? { flagUrl } : {}),
+    section,
+    ...(group ? { group } : {}),
+    number,
+    type,
+    tipo: stickerType,
+    nombre: row.name,
+    descripcion: row.description,
+    label: row.sticker_code,
+    playerName: row.name === row.sticker_code ? "" : row.name,
+    description: row.description ?? "",
+    position: stickerType,
+    club: "",
+    isSpecial: category !== "Equipo"
+  };
+}
+
+function normalizeStickerCode(code: string) {
+  return code.replace(/\s+/g, "").toUpperCase();
+}
+
+function normalizeCountry(country: string) {
+  return country.trim().toUpperCase();
+}
+
+function getCountryFromCode(code: string) {
+  if (code === "00") {
+    return "00";
+  }
+
+  return code.match(/^[A-Z]+/)?.[0] ?? code;
+}
+
+function normalizeCategory(category: string, country: string): ChecklistCategoria {
+  const normalized = normalizeText(category);
+
+  if (country === "00" || normalized === "inicial") {
+    return "Inicial";
+  }
+
+  if (country === "FWC" || normalized === "fwc") {
+    return "FWC";
+  }
+
+  if (country === "CC" || normalized === "cc" || normalized === "cocacola") {
+    return "CC";
+  }
+
+  return "Equipo";
+}
+
+function normalizeStickerType(
+  stickerType: string,
+  category: ChecklistCategoria,
+  number: number
+): ChecklistTipo {
+  const normalized = normalizeText(stickerType);
+
+  const knownTypes: Record<string, ChecklistTipo> = {
+    logo: "Logo",
+    intro: "Intro",
+    mascota: "Mascota",
+    balon: "Balón",
+    sedeestadio: "Sede/Estadio",
+    portero: "Portero",
+    defensa: "Defensa",
+    mediocampista: "Mediocampista",
+    delantero: "Delantero",
+    jugador: "Jugador",
+    escudo: "Escudo",
+    seleccion: "Selección"
+  };
+
+  if (knownTypes[normalized]) {
+    return knownTypes[normalized];
+  }
+
+  if (category === "Equipo") {
+    if (number === 1) {
+      return "Escudo";
+    }
+
+    if (number === 2) {
+      return "Selección";
+    }
+
+    return "Jugador";
+  }
+
+  return "Intro";
+}
+
+function normalizeGroup(group: string | null): WorldCupGroupId | null {
+  const normalized = group?.trim().toUpperCase();
+
+  return isWorldCupGroupId(normalized) ? normalized : null;
+}
+
+function getGroupForCountry(country: string): WorldCupGroupId | undefined {
+  return TEAM_SECTIONS.find((team) => team.country === country)?.group;
+}
+
+function normalizeText(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "");
+}
+
+function isWorldCupGroupId(value: unknown): value is WorldCupGroupId {
+  return (
+    value === "A" ||
+    value === "B" ||
+    value === "C" ||
+    value === "D" ||
+    value === "E" ||
+    value === "F" ||
+    value === "G" ||
+    value === "H" ||
+    value === "I" ||
+    value === "J" ||
+    value === "K" ||
+    value === "L"
+  );
+}
+
+function buildSections(stickers: ChecklistSticker[]): ChecklistSection[] {
+  const sections = new Map<string, ChecklistSection>();
+
+  for (const sticker of stickers) {
+    const id = sticker.country;
+    const section = sections.get(id) ?? {
+      id,
+      title: sticker.section,
+      stickers: []
+    };
+
+    section.stickers.push(sticker);
+    sections.set(id, section);
+  }
+
+  return Array.from(sections.values());
+}
+
+function getChecklistStickerType(category: ChecklistCategoria): ChecklistStickerType {
+  if (category === "CC") {
+    return "coca-cola";
+  }
+
+  if (category === "Equipo") {
+    return "player";
+  }
+
+  return "special";
+}
+
+function getDefaultFlag(country: string) {
+  if (country === "FWC" || country === "00") {
+    return "🏆";
+  }
+
+  if (country === "CC") {
+    return "🥤";
+  }
+
+  return "";
+}
 
 function createSpecialStickers({
   country,

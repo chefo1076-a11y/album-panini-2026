@@ -1,5 +1,5 @@
-import { CHECKLIST_SECTIONS } from "../../lib/checklist";
-import { WORLD_CUP_GROUPS, WORLD_CUP_TEAMS } from "../../lib/worldCupGroups";
+import { getChecklistSections } from "../../lib/checklist";
+import { WORLD_CUP_GROUPS } from "../../lib/worldCupGroups";
 import type { TeamCode } from "../../lib/worldCupGroups";
 import type { Filters, StatusFilter } from "../../lib/album";
 
@@ -14,22 +14,34 @@ export function FiltersBar({
   onFiltersChange,
   onResetAlbum
 }: FiltersBarProps) {
+  const checklistSections = getChecklistSections();
   const teamOptions =
     filters.groupId === "Todos"
-      ? CHECKLIST_SECTIONS.map((section) => ({
+      ? checklistSections.map((section) => ({
           code: section.id,
           flag: section.stickers[0]?.flag ?? "",
           name: section.title
         }))
-      : WORLD_CUP_TEAMS.filter((team) => team.groupId === filters.groupId).map(
-          (team) => ({
-            code: team.code,
-            flag:
-              CHECKLIST_SECTIONS.find((section) => section.id === team.code)?.stickers[0]
-                ?.flag ?? team.flag,
-            name: team.name
-          })
-        );
+      : checklistSections
+          .filter((section) =>
+            section.stickers.some((sticker) => sticker.group === filters.groupId)
+          )
+          .map((section) => ({
+            code: section.id,
+            flag: section.stickers[0]?.flag ?? "",
+            name: section.title
+          }));
+
+  console.log("[album-debug] filters options", {
+    selections: checklistSections.filter((section) =>
+      section.stickers.some((sticker) => sticker.categoria === "Equipo")
+    ).length,
+    groups: new Set(
+      checklistSections.flatMap((section) =>
+        section.stickers.map((sticker) => sticker.group).filter(Boolean)
+      )
+    ).size
+  });
 
   return (
     <div className="sticky top-0 z-10 -mx-4 border-y border-yellow-900/10 bg-[#f7f4ea]/90 px-4 py-2.5 shadow-sm shadow-emerald-950/5 backdrop-blur sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">

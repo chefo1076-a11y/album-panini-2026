@@ -37,6 +37,7 @@ import {
   getCloudAlbumByShareCode,
   hasCloudAlbum,
   isAlbumAuthorized,
+  loadCloudCatalog,
   loadCloudAlbum,
   removeCloudRowFromAlbum,
   revokeAlbumAuthorization,
@@ -149,6 +150,7 @@ export default function Home() {
 
   useEffect(() => {
     let isMounted = true;
+    console.log("[album-debug] page loaded");
 
     async function loadAlbum() {
       let localAlbum = createInitialData();
@@ -165,7 +167,10 @@ export default function Home() {
       }
 
       try {
+        console.log("[album-debug] has cloud", hasCloudAlbum());
         if (hasCloudAlbum()) {
+          const catalogCount = await loadCloudCatalog();
+          console.log("[album-debug] catalog count", catalogCount);
           const shareCode = getInitialShareCode();
           const cloudAlbum =
             shareCode === DEFAULT_ALBUM_SHARE_CODE
@@ -173,8 +178,16 @@ export default function Home() {
               : await getCloudAlbumByShareCode(shareCode);
 
           if (!cloudAlbum) {
+            console.log("[album-debug] activeAlbum", null);
             throw new Error("Album no encontrado.");
           }
+
+          console.log("[album-debug] activeAlbum", {
+            id: cloudAlbum.id,
+            name: cloudAlbum.name,
+            share_code: cloudAlbum.share_code,
+            hasPin: Boolean(cloudAlbum.pin_code)
+          });
 
           if (!isAlbumAuthorized(cloudAlbum)) {
             setActiveCloudAlbum(null);
@@ -193,14 +206,23 @@ export default function Home() {
           }
 
           if (cloudResult.source === "supabase") {
+            console.log("[album-debug] progress count", cloudResult.debug?.progressRows ?? 0);
+            console.log("[album-debug] applied stuck count", cloudResult.debug?.stuckRows ?? 0);
+            console.log("[album-debug] final ui stuck count", getAlbumStats(cloudResult.album.stickers).pegados);
             setActiveCloudAlbum(cloudAlbum);
             setPendingPinAlbum(null);
             persistActiveAlbum(cloudAlbum);
             setRecentAlbums(rememberRecentAlbum(cloudAlbum));
             setAlbum(cloudResult.album);
             setResetNotice(localNotice);
-            setCloudStatus(`Progreso cargado desde Supabase: ${cloudAlbum.name}.`);
+            setCloudStatus(
+              `Progreso cargado desde Supabase: ${cloudAlbum.name}. ${cloudResult.debug?.matchesApplied ?? 0} cromos aplicados.`
+            );
           } else {
+            console.log("[album-debug] using local fallback", cloudResult.message);
+            setActiveCloudAlbum(cloudAlbum);
+            setPendingPinAlbum(null);
+            persistActiveAlbum(cloudAlbum);
             setAlbum(localAlbum);
             setResetNotice(cloudResult.message ?? localNotice);
             setCloudStatus(cloudResult.message ?? null);
@@ -212,7 +234,8 @@ export default function Home() {
             "Supabase no esta configurado. Usando localStorage como respaldo temporal."
           );
         }
-      } catch {
+      } catch (error) {
+        console.log("[album-debug] cloud load error", error);
         if (isMounted) {
           setAlbum(localAlbum);
           setResetNotice(
@@ -258,6 +281,8 @@ export default function Home() {
         const cloudResult = await loadCloudAlbum(album.editor, albumId);
 
         if (cloudResult.source === "supabase") {
+          console.log("[album-debug] progress count", cloudResult.debug?.progressRows ?? 0);
+          console.log("[album-debug] applied stuck count", cloudResult.debug?.stuckRows ?? 0);
           setAlbum((currentAlbum) => persist({
             ...cloudResult.album,
             editor: currentAlbum.editor
@@ -309,7 +334,7 @@ export default function Home() {
               payload.eventType === "DELETE"
                 ? removeCloudRowFromAlbum(
                     currentAlbum,
-                    (payload.old as Partial<AlbumStickerRow>).id as StickerId
+                    (payload.old as Partial<AlbumStickerRow>).sticker_code as StickerId
                   )
                 : applyCloudRowToAlbum(
                     currentAlbum,
@@ -608,6 +633,9 @@ export default function Home() {
       const cloudResult = await loadCloudAlbum(album.editor, cloudAlbum.id);
 
       if (cloudResult.source === "supabase") {
+        console.log("[album-debug] progress count", cloudResult.debug?.progressRows ?? 0);
+        console.log("[album-debug] applied stuck count", cloudResult.debug?.stuckRows ?? 0);
+        console.log("[album-debug] final ui stuck count", getAlbumStats(cloudResult.album.stickers).pegados);
         setAlbum(persist({ ...cloudResult.album, editor: album.editor }));
       }
 

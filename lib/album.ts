@@ -1,11 +1,11 @@
-﻿import { CHECKLIST } from "./checklist";
+﻿import { getChecklist } from "./checklist";
 import type { ChecklistSticker } from "./checklist";
 import type { TeamCode, WorldCupGroupId } from "./worldCupGroups";
 
 export const USERS = ["Juanjo", "Mari", "Mateo"] as const;
 export const STORAGE_KEY = "panini-mundial-2026-v1";
 export const ALBUM_SCHEMA_VERSION = 3;
-export const TOTAL_STICKERS = CHECKLIST.length;
+export const TOTAL_STICKERS = getChecklist().length;
 
 export type UserName = (typeof USERS)[number];
 export type StickerId = ChecklistSticker["id"];
@@ -85,7 +85,7 @@ export function createInitialData(editor: UserName = "Juanjo"): AlbumData {
     schemaVersion: ALBUM_SCHEMA_VERSION,
     editor,
     stickers: Object.fromEntries(
-      CHECKLIST.map((sticker) => [sticker.id, createSticker()])
+      getChecklist().map((sticker) => [sticker.id, createSticker()])
     ) as Record<StickerId, StickerData>
   };
 }
@@ -122,7 +122,7 @@ export function normalizeData(value: unknown): NormalizeAlbumResult {
   const editor = isUserName(saved.editor) ? saved.editor : "Juanjo";
   const normalizedAlbum = createInitialData(editor);
 
-  for (const sticker of CHECKLIST) {
+  for (const sticker of getChecklist()) {
     normalizedAlbum.stickers[sticker.id] = normalizeSticker(
       saved.stickers[sticker.id] ??
         saved.stickers[sticker.codigo] ??
@@ -135,9 +135,11 @@ export function normalizeData(value: unknown): NormalizeAlbumResult {
 }
 
 export function getAlbumStats(stickers: Record<StickerId, StickerData>): AlbumStats {
-  const entries = CHECKLIST.map((sticker) => stickers[sticker.id]);
+  const checklist = getChecklist();
+  const entries = checklist.map((sticker) => stickers[sticker.id] ?? createSticker());
   const pegados = entries.filter((sticker) => sticker.pegado).length;
-  const faltantes = TOTAL_STICKERS - pegados;
+  const totalStickers = checklist.length;
+  const faltantes = totalStickers - pegados;
   const cromosConRepetidos = entries.filter(
     (sticker) => sticker.repetidos > 0
   ).length;
@@ -145,10 +147,12 @@ export function getAlbumStats(stickers: Record<StickerId, StickerData>): AlbumSt
     (total, sticker) => total + sticker.repetidos,
     0
   );
-  const avance = Number(((pegados / TOTAL_STICKERS) * 100).toFixed(1));
+  const avance = totalStickers
+    ? Number(((pegados / totalStickers) * 100).toFixed(1))
+    : 0;
 
   return {
-    total: TOTAL_STICKERS,
+    total: totalStickers,
     pegados,
     faltantes,
     cromosConRepetidos,
@@ -163,8 +167,8 @@ export function getVisibleStickers(
 ) {
   const normalizedQuery = normalizeSearch(filters.query);
 
-  return CHECKLIST.filter((checklistSticker) => {
-    const sticker = stickers[checklistSticker.id];
+  return getChecklist().filter((checklistSticker) => {
+    const sticker = stickers[checklistSticker.id] ?? createSticker();
     const matchesQuery =
       normalizedQuery === "" ||
       normalizeSearch(
@@ -196,16 +200,18 @@ export function getVisibleStickers(
 }
 
 export function getMissingStickers(stickers: Record<StickerId, StickerData>) {
-  return CHECKLIST.filter((checklistSticker) => !stickers[checklistSticker.id].pegado);
+  return getChecklist().filter(
+    (checklistSticker) => !(stickers[checklistSticker.id] ?? createSticker()).pegado
+  );
 }
 
 export function getRepeatedStickerSummaries(
   stickers: Record<StickerId, StickerData>
 ): RepeatedStickerSummary[] {
-  return CHECKLIST.map((checklistSticker) => ({
+  return getChecklist().map((checklistSticker) => ({
     sticker: checklistSticker,
-    quantity: stickers[checklistSticker.id].repetidos,
-    byUser: stickers[checklistSticker.id].repetidosPorUsuario
+    quantity: (stickers[checklistSticker.id] ?? createSticker()).repetidos,
+    byUser: (stickers[checklistSticker.id] ?? createSticker()).repetidosPorUsuario
   })).filter((sticker) => sticker.quantity > 0);
 }
 

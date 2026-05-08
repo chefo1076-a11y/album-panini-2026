@@ -1,4 +1,5 @@
-import { CHECKLIST } from "./checklist";
+import { getChecklist, setChecklistFromCatalogRows } from "./checklist";
+import type { StickersCatalogRow } from "./checklist";
 import {
   USERS,
   createEmptyUserRepeatedMap,
@@ -10,12 +11,7 @@ import { isSupabaseConfigured, supabase } from "./supabaseClient";
 
 export type AlbumStickerRow = {
   album_id: string;
-  id: string;
-  code: string;
-  category: string;
-  selection: string | null;
-  type: string | null;
-  name: string | null;
+  sticker_code: string;
   stuck: boolean;
   repeats: number;
   updated_by: string | null;
@@ -34,6 +30,12 @@ export type CloudLoadResult = {
   album: AlbumData;
   source: "supabase" | "local";
   message?: string;
+  debug?: {
+    catalogCount: number;
+    progressRows: number;
+    matchesApplied: number;
+    stuckRows: number;
+  };
 };
 
 export type MigrationSummary = {
@@ -66,7 +68,7 @@ export async function loadCloudAlbum(
 
   const { data, error } = await supabase
     .from("album_stickers")
-    .select("*")
+    .select("album_id, sticker_code, stuck, repeats, updated_by, updated_at")
     .eq("album_id", albumId);
 
   if (error) {
@@ -79,16 +81,62 @@ export async function loadCloudAlbum(
   }
 
   const album = createInitialData(editor);
+  let matchesApplied = 0;
+  let stuckRows = 0;
 
   for (const row of (data ?? []) as AlbumStickerRow[]) {
-    if (!album.stickers[row.id as StickerId]) {
+    const stickerCode = findAlbumStickerKey(album, row.sticker_code);
+
+    if (!stickerCode) {
       continue;
     }
 
-    album.stickers[row.id as StickerId] = rowToSticker(row, editor);
+    album.stickers[stickerCode] = rowToSticker(row, editor);
+    matchesApplied += 1;
+
+    if (row.stuck) {
+      stuckRows += 1;
+    }
   }
 
-  return { album, source: "supabase" };
+  const debug = {
+    catalogCount: getChecklist().length,
+    progressRows: data?.length ?? 0,
+    matchesApplied,
+    stuckRows
+  };
+
+  console.log("[album-debug] progress count", debug.progressRows);
+  console.log("[album-debug] applied stuck count", debug.stuckRows);
+  console.log("[album-debug] matches applied", debug.matchesApplied);
+
+  return { album, source: "supabase", debug };
+}
+
+export async function loadCloudCatalog() {
+  if (!supabase) {
+    return 0;
+  }
+
+  const { data, error } = await supabase
+    .from("stickers_catalog")
+    .select("*")
+    .order("sort_order", { ascending: true });
+
+  if (error) {
+    throw error;
+  }
+
+  setChecklistFromCatalogRows((data ?? []) as StickersCatalogRow[]);
+
+  console.log("[album-debug] catalog count", data?.length ?? 0);
+  console.log("[album-debug] runtime catalog count", getChecklist().length);
+  console.log("[album-sync] loadCloudCatalog", {
+    catalogRows: data?.length ?? 0,
+    runtimeChecklist: getChecklist().length
+  });
+
+  return data?.length ?? 0;
 }
 
 export async function upsertCloudSticker(
@@ -103,7 +151,7 @@ export async function upsertCloudSticker(
   const row = albumStickerToRow(album, stickerId, albumId);
   const { error } = await supabase
     .from("album_stickers")
-    .upsert(row, { onConflict: "album_id,id" });
+    .upsert(row, { onConflict: "album_id,sticker_code" });
 
   if (error) {
     throw error;
@@ -120,7 +168,7 @@ export async function upsertCloudAlbum(album: AlbumData, albumId: string) {
   );
   const { error } = await supabase
     .from("album_stickers")
-    .upsert(rows, { onConflict: "album_id,id" });
+    .upsert(rows, { onConflict: "album_id,sticker_code" });
 
   if (error) {
     throw error;
@@ -237,7 +285,9 @@ export function applyCloudRowToAlbum(
   album: AlbumData,
   row: AlbumStickerRow
 ): AlbumData {
-  if (!album.stickers[row.id as StickerId]) {
+  const stickerCode = findAlbumStickerKey(album, row.sticker_code);
+
+  if (!stickerCode) {
     return album;
   }
 
@@ -245,7 +295,7 @@ export function applyCloudRowToAlbum(
     ...album,
     stickers: {
       ...album.stickers,
-      [row.id]: rowToSticker(row, album.editor)
+      [stickerCode]: rowToSticker(row, album.editor)
     }
   };
 }
@@ -254,7 +304,9 @@ export function removeCloudRowFromAlbum(
   album: AlbumData,
   stickerId: StickerId
 ): AlbumData {
-  if (!album.stickers[stickerId]) {
+  const stickerCode = findAlbumStickerKey(album, stickerId);
+
+  if (!stickerCode) {
     return album;
   }
 
@@ -264,7 +316,7 @@ export function removeCloudRowFromAlbum(
     ...album,
     stickers: {
       ...album.stickers,
-      [stickerId]: cleanAlbum.stickers[stickerId]
+      [stickerCode]: cleanAlbum.stickers[stickerCode]
     }
   };
 }
@@ -288,7 +340,7 @@ function albumStickerToRow(
   stickerId: StickerId,
   albumId: string
 ): AlbumStickerRow {
-  const checklistSticker = CHECKLIST.find((sticker) => sticker.id === stickerId);
+  const checklistSticker = getChecklist().find((sticker) => sticker.id === stickerId);
   const sticker = album.stickers[stickerId];
 
   if (!checklistSticker) {
@@ -297,12 +349,7 @@ function albumStickerToRow(
 
   return {
     album_id: albumId,
-    id: checklistSticker.id,
-    code: checklistSticker.codigo,
-    category: checklistSticker.categoria,
-    selection: checklistSticker.seleccion,
-    type: checklistSticker.tipo,
-    name: checklistSticker.nombre,
+    sticker_code: normalizeStickerCode(checklistSticker.codigo),
     stuck: sticker.pegado,
     repeats: sticker.repetidos,
     updated_by: album.editor,
@@ -321,6 +368,27 @@ function createShareCode(name: string) {
   const suffix = Math.random().toString(36).slice(2, 8);
 
   return `${slug || "album"}-${suffix}`;
+}
+
+function normalizeStickerCode(code: string) {
+  return code.replace(/\s+/g, "").toUpperCase();
+}
+
+function findAlbumStickerKey(album: AlbumData, code: string): StickerId | null {
+  const normalizedCode = normalizeStickerCode(code);
+  const directKey = code as StickerId;
+
+  if (album.stickers[directKey]) {
+    return directKey;
+  }
+
+  for (const stickerKey of Object.keys(album.stickers) as StickerId[]) {
+    if (normalizeStickerCode(stickerKey) === normalizedCode) {
+      return stickerKey;
+    }
+  }
+
+  return null;
 }
 
 function isUserName(value: unknown): value is UserName {

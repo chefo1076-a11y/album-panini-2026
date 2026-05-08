@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "import:catalog": "node scripts/import-stickers-catalog.mjs",
     "lint": "next lint"
   },
   "dependencies": {

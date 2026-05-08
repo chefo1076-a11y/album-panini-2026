@@ -1,4 +1,4 @@
-import { CHECKLIST, getFlagUrl } from "../../lib/checklist";
+import { getChecklist } from "../../lib/checklist";
 import type { StickerData, StickerId } from "../../lib/album";
 import { WORLD_CUP_GROUPS } from "../../lib/worldCupGroups";
 
@@ -11,10 +11,23 @@ type GroupProgress = {
   total: number;
   pegados: number;
   avance: number;
+  countries: {
+    code: string;
+    name: string;
+    flag: string;
+    flagUrl?: string;
+  }[];
 };
 
 export function GroupsOverview({ stickers }: GroupsOverviewProps) {
   const progressByGroup = getProgressByGroup(stickers);
+  console.log("[album-debug] groups overview detected", {
+    groups: Object.values(progressByGroup).filter((group) => group.total > 0).length,
+    selections: Object.values(progressByGroup).reduce(
+      (total, group) => total + group.countries.length,
+      0
+    )
+  });
 
   return (
     <section className="mx-auto w-full max-w-7xl px-4 pb-2 sm:px-6 lg:px-8">
@@ -62,7 +75,7 @@ export function GroupsOverview({ stickers }: GroupsOverviewProps) {
                 </div>
 
                 <div className="mt-3 grid gap-1.5">
-                  {group.teams.map((team) => (
+                  {progress.countries.map((team) => (
                     <div
                       className="flex items-center justify-between gap-2 rounded border border-emerald-950/8 bg-[#fffdf7] px-2 py-1.5"
                       key={team.code}
@@ -71,7 +84,7 @@ export function GroupsOverview({ stickers }: GroupsOverviewProps) {
                         <FlagMark
                           alt={team.name}
                           emoji={team.flag}
-                          src={getFlagUrl(team.code)}
+                          src={team.flagUrl}
                         />
                         {team.name}
                       </span>
@@ -117,7 +130,8 @@ function getProgressByGroup(stickers: Record<StickerId, StickerData>) {
         groupId: group.id,
         total: 0,
         pegados: 0,
-        avance: 0
+        avance: 0,
+        countries: []
       };
 
       return result;
@@ -125,7 +139,7 @@ function getProgressByGroup(stickers: Record<StickerId, StickerData>) {
     {}
   );
 
-  for (const checklistSticker of CHECKLIST) {
+  for (const checklistSticker of getChecklist()) {
     if (!checklistSticker.group) {
       continue;
     }
@@ -135,7 +149,16 @@ function getProgressByGroup(stickers: Record<StickerId, StickerData>) {
 
     groupProgress.total += 1;
 
-    if (sticker.pegado) {
+    if (!groupProgress.countries.some((country) => country.code === checklistSticker.country)) {
+      groupProgress.countries.push({
+        code: checklistSticker.country,
+        name: checklistSticker.section,
+        flag: checklistSticker.flag,
+        flagUrl: checklistSticker.flagUrl
+      });
+    }
+
+    if (sticker?.pegado) {
       groupProgress.pegados += 1;
     }
   }
